@@ -1,0 +1,1 @@
+# trading212-mcp-server
