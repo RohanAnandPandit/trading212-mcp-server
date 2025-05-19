@@ -1,5 +1,5 @@
-from src.mcp_server import mcp, client
-from src.models import Account, Cash, Position, Order, \
+from mcp_server import mcp, client
+from models import Account, Cash, Position, Order, \
     AccountBucketResultResponse, \
     Exchange, TradeableInstrument
 

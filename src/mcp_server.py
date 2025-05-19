@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from dotenv import find_dotenv, load_dotenv
-from src.utils.client import Trading212Client
+from utils.client import Trading212Client
 
 load_dotenv(find_dotenv())
 

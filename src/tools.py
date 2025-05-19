@@ -1,6 +1,6 @@
-from src.mcp_server import mcp, client
+from mcp_server import mcp, client
 
-from src.models import (Account, Cash, Position, Order,
+from models import (Account, Cash, Position, Order,
                         AccountBucketResultResponse,
                         Exchange, TradeableInstrument, HistoricalOrder,
                         LimitRequest, MarketRequest, StopLimitRequest)

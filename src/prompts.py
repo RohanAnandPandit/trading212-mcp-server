@@ -1,4 +1,4 @@
-from src.mcp_server import mcp, client
+from mcp_server import mcp, client
 
 
 # ---- MCP Prompts ----
