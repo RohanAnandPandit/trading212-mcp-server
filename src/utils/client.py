@@ -3,12 +3,13 @@ import os
 import hishel
 from typing import Optional, List, Dict, Any
 
-from src.models import Account, Cash, Position, Order, \
+from models import Account, Cash, Position, Order, \
     AccountBucketResultResponse, \
     Environment, Exchange, TradeableInstrument, HistoricalOrder, \
     PaginatedResponseHistoryDividendItem, \
     PaginatedResponseHistoryTransactionItem
-from src.utils.hishel_config import storage, controller
+
+from utils.hishel_config import storage, controller
 
 
 class Trading212Client:
