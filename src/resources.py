@@ -1,7 +1,7 @@
 from mcp_server import mcp, client
 from models import Account, Cash, Position, Order, \
     AccountBucketResultResponse, \
-    Exchange, TradeableInstrument
+    Exchange, TradeableInstrument, ReportResponse
 
 
 # ---- MCP Resources ----
@@ -66,6 +66,6 @@ def get_exchanges() -> list[Exchange]:
 
 
 @mcp.resource("trading212://history/exports")
-def get_reports() -> list[dict]:
+def get_reports() -> list[ReportResponse]:
     """Get account export reports."""
     return client.get_reports()
