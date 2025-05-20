@@ -3,7 +3,8 @@ from mcp_server import mcp, client
 from models import (Account, Cash, Position, Order,
                         AccountBucketResultResponse,
                         Exchange, TradeableInstrument, HistoricalOrder,
-                        LimitRequest, MarketRequest, StopLimitRequest)
+                        LimitRequest, MarketRequest, StopLimitRequest,
+                        ReportResponse)
 
 
 @mcp.tool("get_account_info")
@@ -104,6 +105,6 @@ def delete_pie(pie_id: int) -> None:
 
 
 @mcp.tool("get_reports")
-def get_reports() -> list[dict]:
+def get_reports() -> list[ReportResponse]:
     """Get account export reports."""
     return client.get_reports()
