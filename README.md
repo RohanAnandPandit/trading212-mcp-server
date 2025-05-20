@@ -79,6 +79,69 @@ In trading212-mcp-server repo:
 uv run src/server.py
 ```
 
+## Tools
+
+### Account Management
+- `get_account_info`: Fetch account metadata
+- `get_account_cash`: Fetch account cash balance
+- `get_account_positions`: Fetch all open positions
+- `get_account_position_by_ticker`: Fetch a position by ticker (deprecated)
+- `search_position_by_ticker`: Search for a position by ticker using POST endpoint
+
+### Order Management
+- `get_orders`: Fetch current orders
+- `get_history_orders`: Fetch historical order data with pagination
+- `place_market_order`: Place a market order
+- `place_limit_order`: Place a limit order
+- `place_stop_limit_order`: Place a stop-limit order
+- `cancel_order`: Cancel an existing order
+
+### Portfolio Management
+- `get_pies`: Fetch all pies
+- `duplicate_pie`: Duplicate a pie
+- `delete_pie`: Delete a pie
+
+### Market Data
+- `get_instruments`: Fetch all tradeable instruments
+- `get_exchanges`: Fetch all exchanges and their working schedules
+
+### Reports
+- `get_reports`: Get account export reports
+
+## Resources
+
+### Account Resources
+- `trading212://account/info`: Fetch account metadata
+- `trading212://account/cash`: Fetch account cash balance
+- `trading212://account/portfolio`: Fetch all open positions
+- `trading212://account/portfolio/{ticker}`: Fetch an open position by ticker
+
+### Order Resources
+- `trading212://orders`: Fetch current orders
+- `trading212://orders/{order_id}`: Fetch a specific order by ID
+
+### Portfolio Resources
+- `trading212://pies`: Fetch all pies
+- `trading212://pies/{pie_id}`: Fetch a specific pie by ID
+
+### Market Resources
+- `trading212://instruments`: Fetch all tradeable instruments
+- `trading212://exchanges`: Fetch all exchanges and their working schedules
+
+### Reports Resources
+- `trading212://history/exports`: Get account export reports
+
+## Prompts
+
+### Data Analysis
+- `analyse_trading212_data`: Analyse trading212 data with currency context
+
+The prompt includes:
+- Professional financial expertise
+- Currency-aware analysis
+- Cautious financial advice
+- Dynamic currency information from account data
+
 ## Installation
 
 ### Using Claude Desktop
