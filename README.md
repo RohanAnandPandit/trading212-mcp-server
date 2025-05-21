@@ -5,7 +5,7 @@
 
 ## Overview
 
-The Trading212 MCP (Model Context Protocol) Server is a high-performance, scalable server implementation that provides real-time market data connectivity for Trading212's trading platform. This server acts as a bridge between the Trading212 platform and various market data providers, enabling seamless data flow and efficient trading operations.
+The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprotocol.io/introduction) server implementation that provides seamless data connectivity to the Trading212 trading platform enabling advanced interaction capabilities.
 
 ## Core Features
 
@@ -48,36 +48,6 @@ The Trading212 MCP (Model Context Protocol) Server is a high-performance, scalab
 - Pydantic >= 2.11.4
 - Hishel
 
-
-
-## Installation
-
-
-### Environment Configuration
-Copy `.env.example` to `.env` and configure:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-### Install packages
-
-```
-uv install -e .
-```
-
-### Generating API key
-- See https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-How-can-I-generate-an-API-key
-
-#### Running
-
-After connecting Claude client with the MCP tool via json file and installing the packages, Claude should see the server's mcp tools:
-
-You can run the server yourself via:
-In trading212-mcp-server repo: 
-```
-uv run src/server.py
-```
 
 ## Tools
 
@@ -144,6 +114,18 @@ The prompt includes:
 
 ## Installation
 
+### Clone repository
+```bash
+git clone https://github.com/RohanAnandPandit/trading212-mcp-server.git
+```
+
+### Environment Configuration
+Copy `.env.example` to `.env` and configure:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
 ### Using Claude Desktop
 
 #### Installing via Docker
@@ -203,6 +185,48 @@ docker build -t mcp/trading212-mcp-server .
 }
 ```
 
+### Generating API key
+- You can generate the API key from your account settings
+- Visit the [Trading212 help centre](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-How-can-I-generate-an-API-key) for more information
+
+
+### Install packages
+
+```
+uv install
+```
+
+or 
+
+```
+pip install -r requirements.txt
+```
+
+#### Running
+
+After connecting Claude client with the MCP tool via json file and installing the packages, Claude should see the server's mcp tools:
+
+You can run the server yourself via:
+In trading212-mcp-server repo: 
+```
+uv run src/server.py
+```
+
+### Using Python
+
+```json
+{
+ "mcpServers": {
+  "trading212": {
+    "command": "<insert path to python>",
+    "args": [
+        "<insert path to repo>/src/server.py"
+    ]
+  }
+ }
+}
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -214,7 +238,7 @@ For support, please:
 
 ## Documentation
 
-For the Trading212 API documentation, visit https://t212public-api-docs.redoc.ly/.
+For the Trading212 API documentation, view the [Public API docs](https://t212public-api-docs.redoc.ly/).
 
 
 ## Legal Notice
