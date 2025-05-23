@@ -4,7 +4,8 @@ from models import (Account, Cash, Position, Order,
                         AccountBucketResultResponse,
                         Exchange, TradeableInstrument, HistoricalOrder,
                         LimitRequest, MarketRequest, StopLimitRequest,
-                        ReportResponse)
+                        ReportResponse, PaginatedResponseHistoryTransactionItem,
+                        PaginatedResponseHistoryDividendItem)
 
 
 @mcp.tool("get_account_info")
@@ -57,7 +58,7 @@ def get_history_orders(cursor: int = None, ticker: str = None,
 
 @mcp.tool("get_dividends")
 def get_dividends(cursor: int = None, ticker: str = None,
-                  limit: int = 20) -> list[HistoricalOrder]:
+                  limit: int = 20) -> PaginatedResponseHistoryDividendItem:
     """Fetch historical dividend data with pagination."""
     return client.get_dividends(cursor=cursor, ticker=ticker, limit=limit)
 
@@ -115,7 +116,7 @@ def get_reports() -> list[ReportResponse]:
     return client.get_reports()
 
 @mcp.tool("get_transactions")
-def get_transactions(cursor: int = None, time: str = None,
-                  limit: int = 20) -> list[HistoricalOrder]:
+def get_transactions(cursor: str | None = None, time: str | None = None,
+                  limit: int = 20) -> PaginatedResponseHistoryTransactionItem:
     """Fetch historical transaction data with pagination."""
-    return client.get_transactions(cursor=cursor, time=time, limit=limit)
+    return client.get_history_transactions(cursor=cursor, time=time, limit=limit)
