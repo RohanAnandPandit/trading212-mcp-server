@@ -1,13 +1,13 @@
 import httpx
 import os
 import hishel
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Any
 
-from models import Account, Cash, LimitRequest, Position, Order, \
-    AccountBucketResultResponse, \
-    Environment, Exchange, StopLimitRequest, TradeableInstrument, HistoricalOrder, \
-    PaginatedResponseHistoryDividendItem, \
-    PaginatedResponseHistoryTransactionItem, ReportResponse, ReportDataIncluded
+from models import (Account, Cash, LimitRequest, Position, Order,
+    AccountBucketResultResponse,
+    Environment, Exchange, StopLimitRequest, TradeableInstrument, HistoricalOrder,
+    PaginatedResponseHistoryDividendItem,
+    PaginatedResponseHistoryTransactionItem, ReportResponse, ReportDataIncluded, MarketRequest)
 
 from utils.hishel_config import storage, controller
 
@@ -168,7 +168,7 @@ class Trading212Client:
         data = self._make_requests("GET", f"/equity/metadata/exchanges")
         return [Exchange.model_validate(exchange) for exchange in data]
 
-    def place_market_order(self, order_data: Dict[str, Any]) -> Order:
+    def place_market_order(self, order_data: MarketRequest) -> Order:
         """Place a market order"""
         data = self._make_requests("POST", f"/equity/orders/market",
                                    json=order_data)
