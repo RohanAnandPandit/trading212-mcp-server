@@ -203,6 +203,28 @@ class Trading212Client:
         """Get account export reports"""
         data = self._make_requests("GET", f"/history/exports")
         return [ReportResponse.model_validate(report) for report in data]
+        
+    def request_report(self, data_included: ReportDataIncluded = None, time_from: str = None, time_to: str = None) -> dict:
+        """
+        Request a CSV export of the account's orders, dividends and transactions history
+        
+        Args:
+            data_included: Dictionary specifying which data to include in the report
+            time_from: Start time for the report in ISO 8601 format (e.g., "2023-01-01T00:00:00Z")
+            time_to: End time for the report in ISO 8601 format (e.g., "2023-12-31T23:59:59Z")
+            
+        Returns:
+            dict: Response containing the report ID
+        """
+        payload = {}
+        if data_included:
+            payload["dataIncluded"] = data_included.model_dump()
+        if time_from:
+            payload["timeFrom"] = time_from
+        if time_to:
+            payload["timeTo"] = time_to
+            
+        return self._make_requests("POST", "/history/exports", json=payload)
 
 
 if __name__ == '__main__':
