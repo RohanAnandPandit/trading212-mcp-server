@@ -4,7 +4,8 @@ from models import (Account, Cash, Position, Order,
                         AccountBucketResultResponse,
                         Exchange, TradeableInstrument, HistoricalOrder,
                         LimitRequest, MarketRequest, StopLimitRequest,
-                        ReportResponse)
+                        ReportResponse, PaginatedResponseHistoryTransactionItem,
+                        PaginatedResponseHistoryDividendItem, ReportDataIncluded)
 
 
 @mcp.tool("get_account_info")
@@ -55,6 +56,11 @@ def get_history_orders(cursor: int = None, ticker: str = None,
     """Fetch historical order data with pagination."""
     return client.get_history_orders(cursor=cursor, ticker=ticker, limit=limit)
 
+@mcp.tool("get_dividends")
+def get_dividends(cursor: int = None, ticker: str = None,
+                  limit: int = 20) -> PaginatedResponseHistoryDividendItem:
+    """Fetch historical dividend data with pagination."""
+    return client.get_dividends(cursor=cursor, ticker=ticker, limit=limit)
 
 @mcp.tool("get_instruments")
 def get_instruments() -> list[TradeableInstrument]:
@@ -108,3 +114,24 @@ def delete_pie(pie_id: int) -> None:
 def get_reports() -> list[ReportResponse]:
     """Get account export reports."""
     return client.get_reports()
+
+@mcp.tool("get_transactions")
+def get_transactions(cursor: str | None = None, time: str | None = None,
+                  limit: int = 20) -> PaginatedResponseHistoryTransactionItem:
+    """Fetch historical transaction data with pagination."""
+    return client.get_history_transactions(cursor=cursor, time=time, limit=limit)
+
+@mcp.tool("request_report")
+def request_report(data_included: ReportDataIncluded = None, time_from: str = None, time_to: str = None) -> dict:
+    """
+    Request a CSV export of the account's orders, dividends and transactions history
+    
+    Args:
+        data_included: Dictionary specifying which data to include in the report
+        time_from: Start time for the report in ISO 8601 format (e.g., "2023-01-01T00:00:00Z")
+        time_to: End time for the report in ISO 8601 format (e.g., "2023-12-31T23:59:59Z")
+        
+    Returns:
+        dict: Response containing the report ID
+    """
+    return client.request_report(data_included=data_included, time_from=time_from, time_to=time_to)
