@@ -7,7 +7,7 @@ from models import Account, Cash, LimitRequest, Position, Order, \
     AccountBucketResultResponse, \
     Environment, Exchange, StopLimitRequest, TradeableInstrument, HistoricalOrder, \
     PaginatedResponseHistoryDividendItem, \
-    PaginatedResponseHistoryTransactionItem
+    PaginatedResponseHistoryTransactionItem, ReportResponse, ReportDataIncluded
 
 from utils.hishel_config import storage, controller
 
@@ -199,10 +199,10 @@ class Trading212Client:
         """Delete a pie"""
         self._make_requests("DELETE", f"/equity/pies/{pie_id}")
 
-    def get_reports(self) -> List[Dict[str, Any]]:
+    def get_reports(self) -> list[ReportResponse]:
         """Get account export reports"""
         data = self._make_requests("GET", f"/history/exports")
-        return data
+        return [ReportResponse.model_validate(report) for report in data]
 
 
 if __name__ == '__main__':
