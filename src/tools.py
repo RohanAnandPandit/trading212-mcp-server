@@ -54,6 +54,11 @@ def get_history_orders(cursor: int = None, ticker: str = None,
     """Fetch historical order data with pagination."""
     return client.get_history_orders(cursor=cursor, ticker=ticker, limit=limit)
 
+@mcp.tool("get_dividends")
+def get_dividends(cursor: int = None, ticker: str = None,
+                  limit: int = 20) -> list[HistoricalOrder]:
+    """Fetch historical dividend data with pagination."""
+    return client.get_dividends(cursor=cursor, ticker=ticker, limit=limit)
 
 @mcp.tool("get_instruments")
 def get_instruments() -> list[TradeableInstrument]:
@@ -107,3 +112,9 @@ def delete_pie(pie_id: int) -> None:
 def get_reports() -> list[dict]:
     """Get account export reports."""
     return client.get_reports()
+
+@mcp.tool("get_transactions")
+def get_transactions(cursor: int = None, time: str = None,
+                  limit: int = 20) -> list[HistoricalOrder]:
+    """Fetch historical transaction data with pagination."""
+    return client.get_transactions(cursor=cursor, time=time, limit=limit)
