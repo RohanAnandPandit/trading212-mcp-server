@@ -3,11 +3,11 @@ import os
 import hishel
 from typing import Optional, List, Dict, Any
 
-from models import Account, Cash, Position, Order, \
+from models import Account, Cash, LimitRequest, Position, Order, \
     AccountBucketResultResponse, \
-    Environment, Exchange, TradeableInstrument, HistoricalOrder, \
+    Environment, Exchange, StopLimitRequest, TradeableInstrument, HistoricalOrder, \
     PaginatedResponseHistoryDividendItem, \
-    PaginatedResponseHistoryTransactionItem
+    PaginatedResponseHistoryTransactionItem, ReportResponse, ReportDataIncluded
 
 from utils.hishel_config import storage, controller
 
@@ -57,6 +57,32 @@ class Trading212Client:
         data = self._make_requests("POST", f"/equity/portfolio/ticker",
                                    json={"ticker": ticker})
         return Position.model_validate(data)
+    
+    def get_dividends(self, 
+                      cursor: Optional[int] = None, 
+                      ticker: Optional[str] = None, 
+                      limit: int = 20) -> PaginatedResponseHistoryDividendItem:
+        """
+        Fetch dividend history with optional pagination, ticker filtering, and limit.
+
+        Args:
+            cursor: Pagination cursor for the next page of results
+            ticker: Filter dividends by ticker symbol
+            limit: Maximum number of items to return (max: 50, default: 20)
+
+        Returns:
+            PaginatedResponseHistoryDividendItem: Paginated response containing dividend items
+        """
+        params = {}
+        if cursor is not None:
+            params["cursor"] = cursor
+        if ticker is not None:
+            params["ticker"] = ticker
+        if limit is not None:
+            params["limit"] = min(50, max(1, limit))  # Ensure limit is between 1 and 50
+
+        data = self._make_requests("GET", "/history/dividends", params=params)
+        return PaginatedResponseHistoryDividendItem.model_validate(data)
 
     def get_orders(self) -> List[Order]:
         """Fetch current orders."""
@@ -107,10 +133,20 @@ class Trading212Client:
                                    params=params)
         return PaginatedResponseHistoryDividendItem.model_validate(data)
 
-    def get_history_transactions(self, cursor: Optional[int] = None,
+    def get_history_transactions(self, cursor: Optional[str] = None,
                                  time_from: Optional[str] = None,
                                  limit: int = 20) -> PaginatedResponseHistoryTransactionItem:
-        """Fetch historical transaction data with pagination"""
+        """
+        Fetch superficial information about movements to and from your account
+        
+        Args:
+            cursor: Pagination cursor for the next page of results
+            time: Retrieve transactions starting from the specified time (ISO 8601 format)
+            limit: Maximum number of items to return (max: 50, default: 20)
+            
+        Returns:
+            PaginatedResponseHistoryTransactionItem: Paginated response containing transaction items
+        """        
         params = {"limit": limit}
         if cursor is not None:
             params["cursor"] = cursor
@@ -138,13 +174,13 @@ class Trading212Client:
                                    json=order_data)
         return Order.model_validate(data)
 
-    def place_limit_order(self, order_data: Dict[str, Any]) -> Order:
+    def place_limit_order(self, order_data: LimitRequest) -> Order:
         """Place a limit order"""
         data = self._make_requests("POST", f"/equity/orders/limit",
                                    json=order_data)
         return Order.model_validate(data)
 
-    def place_stop_limit_order(self, order_data: Dict[str, Any]) -> Order:
+    def place_stop_limit_order(self, order_data: StopLimitRequest) -> Order:
         """Place a stop-limit order"""
         data = self._make_requests("POST", f"/equity/orders/stop_limit",
                                    json=order_data)
@@ -163,10 +199,32 @@ class Trading212Client:
         """Delete a pie"""
         self._make_requests("DELETE", f"/equity/pies/{pie_id}")
 
-    def get_reports(self) -> List[Dict[str, Any]]:
+    def get_reports(self) -> list[ReportResponse]:
         """Get account export reports"""
         data = self._make_requests("GET", f"/history/exports")
-        return data
+        return [ReportResponse.model_validate(report) for report in data]
+        
+    def request_report(self, data_included: ReportDataIncluded = None, time_from: str = None, time_to: str = None) -> dict:
+        """
+        Request a CSV export of the account's orders, dividends and transactions history
+        
+        Args:
+            data_included: Dictionary specifying which data to include in the report
+            time_from: Start time for the report in ISO 8601 format (e.g., "2023-01-01T00:00:00Z")
+            time_to: End time for the report in ISO 8601 format (e.g., "2023-12-31T23:59:59Z")
+            
+        Returns:
+            dict: Response containing the report ID
+        """
+        payload = {}
+        if data_included:
+            payload["dataIncluded"] = data_included.model_dump()
+        if time_from:
+            payload["timeFrom"] = time_from
+        if time_to:
+            payload["timeTo"] = time_to
+            
+        return self._make_requests("POST", "/history/exports", json=payload)
 
 
 if __name__ == '__main__':
