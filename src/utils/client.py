@@ -146,7 +146,8 @@ class Trading212Client:
             
         Returns:
             PaginatedResponseHistoryTransactionItem: Paginated response containing transaction items
-        """        params = {"limit": limit}
+        """        
+        params = {"limit": limit}
         if cursor is not None:
             params["cursor"] = cursor
         if time_from is not None:
