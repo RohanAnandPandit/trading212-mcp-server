@@ -57,6 +57,29 @@ class Trading212Client:
         data = self._make_requests("POST", f"/equity/portfolio/ticker",
                                    json={"ticker": ticker})
         return Position.model_validate(data)
+    
+    def get_dividends(self, cursor: Optional[int] = None, ticker: Optional[str] = None, limit: int = 20) -> PaginatedResponseHistoryDividendItem:
+        """
+        Fetch dividend history with optional pagination, ticker filtering, and limit.
+
+        Args:
+            cursor: Pagination cursor for the next page of results
+            ticker: Filter dividends by ticker symbol
+            limit: Maximum number of items to return (max: 50, default: 20)
+
+        Returns:
+            PaginatedResponseHistoryDividendItem: Paginated response containing dividend items
+        """
+        params = {}
+        if cursor is not None:
+            params["cursor"] = cursor
+        if ticker is not None:
+            params["ticker"] = ticker
+        if limit is not None:
+            params["limit"] = min(50, max(1, limit))  # Ensure limit is between 1 and 50
+
+        data = self._make_requests("GET", "/history/dividends", params=params)
+        return PaginatedResponseHistoryDividendItem.model_validate(data)
 
     def get_orders(self) -> List[Order]:
         """Fetch current orders."""
@@ -167,6 +190,29 @@ class Trading212Client:
         """Get account export reports"""
         data = self._make_requests("GET", f"/history/exports")
         return data
+
+    def get_transactions(self, cursor: Optional[str] = None, time: Optional[str] = None, limit: int = 20) -> PaginatedResponseHistoryTransactionItem:
+        """
+        Fetch superficial information about movements to and from your account
+        
+        Args:
+            cursor: Pagination cursor for the next page of results
+            time: Retrieve transactions starting from the specified time (ISO 8601 format)
+            limit: Maximum number of items to return (max: 50, default: 20)
+            
+        Returns:
+            PaginatedResponseHistoryTransactionItem: Paginated response containing transaction items
+        """
+        params = {}
+        if cursor is not None:
+            params["cursor"] = cursor
+        if time is not None:
+            params["time"] = time
+        if limit is not None:
+            params["limit"] = min(50, max(1, limit))  # Ensure limit is between 1 and 50
+            
+        data = self._make_requests("GET", "/history/transactions", params=params)
+        return PaginatedResponseHistoryTransactionItem.model_validate(data)
 
 
 if __name__ == '__main__':
