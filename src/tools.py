@@ -124,7 +124,7 @@ def update_pie(
     instrument_shares: dict[str, float] = Field(
         default=None,
         description="Dictionary mapping instrument tickers to their new weights in the pie (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})",
-        example={"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}
+        examples=[{"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}]
     ),
     dividend_cash_action: Optional[DividendCashActionEnum] = Field(
         default=None,
