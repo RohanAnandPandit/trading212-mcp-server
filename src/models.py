@@ -392,12 +392,18 @@ class PaginatedResponseHistoryTransactionItem(BaseModel):
 
 
 class PieRequest(BaseModel):
-    dividendCashAction: Optional[DividendCashActionEnum]
-    endDate: Optional[datetime]
-    goal: Optional[float]
-    icon: Optional[str]
-    instrumentShares: Optional[Dict[str, float]]
-    name: Optional[str]
+    dividendCashAction: Optional[DividendCashActionEnum] = Field(
+        description="How dividends are handled", 
+        examples=[DividendCashActionEnum.REINVEST, DividendCashActionEnum.TO_ACCOUNT_CASH]
+    )
+    endDate: Optional[datetime] = Field(format="date-time")
+    goal: Optional[float] = Field(description="Total desired value of the pie in account currency")
+    icon: Optional[str] = Field()
+    instrumentShares: Optional[Dict[str, float]] = Field(
+        examples=[{"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}],
+        description="The shares of each instrument in the pie",
+    )
+    name: Optional[str] = Field()
 
 
 class PlaceOrderError(BaseModel):
@@ -424,10 +430,10 @@ class PositionRequest(BaseModel):
 
 
 class ReportDataIncluded(BaseModel):
-    includeDividends: Optional[bool]
-    includeInterest: Optional[bool]
-    includeOrders: Optional[bool]
-    includeTransactions: Optional[bool]
+    includeDividends: Optional[bool] = True
+    includeInterest: Optional[bool] = True
+    includeOrders: Optional[bool] = True
+    includeTransactions: Optional[bool] = True
 
 
 class PublicReportRequest(BaseModel):
