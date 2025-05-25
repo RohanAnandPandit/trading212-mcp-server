@@ -51,55 +51,65 @@ The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprot
 
 ## Tools
 
-### Account Management
-- `get_account_info`: Fetch account metadata
-- `get_account_cash`: Fetch account cash balance
-- `get_account_positions`: Fetch all open positions
-- `get_account_position_by_ticker`: Fetch a position by ticker (deprecated)
-- `search_position_by_ticker`: Search for a position by ticker using POST endpoint
+### Instruments Metadata
+- `fetch_exchange_list`: Fetch all exchanges and their corresponding working schedules that your account has access to
+- `fetch_instrument_list`: Fetch all instruments that your account has access to
 
-### Order Management
-- `get_orders`: Fetch current orders
-- `get_history_orders`: Fetch historical order data with pagination
-- `place_market_order`: Place a market order
-- `place_limit_order`: Place a limit order
-- `place_stop_limit_order`: Place a stop-limit order
-- `cancel_order`: Cancel an existing order
-
-### Portfolio Management
-- `get_pies`: Fetch all pies
+### Pies
+- `fetch_pies`: Fetch all pies
 - `duplicate_pie`: Duplicate a pie
+- `create_pie`: Create a new pie
+- `update_pie`: Update a specific pie by ID
 - `delete_pie`: Delete a pie
 
-### Market Data
-- `get_instruments`: Fetch all tradeable instruments
-- `get_exchanges`: Fetch all exchanges and their working schedules
+### Equity Orders
+- `fetch_all_orders`: Fetch all equity orders
+- `place_limit_order`: Place a limit order
+- `place_market_order`: Place a market order
+- `place_stop_order`: Place a stop order
+- `place_stop_limit_order`: Place a stop-limit order
+- `cancel_order`: Cancel an existing order by ID
+- `fetch_order`: Fetch a specific order by ID
 
-### Reports
-- `get_reports`: Get account export reports
+### Account Data
+- `fetch_account_cash`: Fetch account cash balance
+- `fetch_account_metadata`: Fetch account id and currency
+
+
+### Personal Portfolio
+- `fetch_open_positions`: Fetch all open positions
+- `search_specific_position_by_ticker`: Search for a position by ticker using POST endpoint
+- `fetch_open_position_by_ticker`: Fetch a position by ticker (deprecated)
+
+### Historical items
+- `fetch_historical_order_data`: Fetch historical order data with pagination
+- `fetch_paid_out_dividends`: Fetch historical dividend data with pagination
+- `fetch_exports_list`: Lists detailed information about all csv account exports
+- `request_export_csv`: Request a CSV export of the account's orders, dividends and transactions history
+- `fetch_transaction_list`: Fetch superficial information about movements to and from your account
 
 ## Resources
 
 ### Account Resources
-- `trading212://account/info`: Fetch account metadata
-- `trading212://account/cash`: Fetch account cash balance
-- `trading212://account/portfolio`: Fetch all open positions
-- `trading212://account/portfolio/{ticker}`: Fetch an open position by ticker
+- `trading212://account/metadata`
+- `trading212://account/cash`
+- `trading212://account/portfolio`
+- `trading212://account/portfolio/{ticker}`
 
 ### Order Resources
-- `trading212://orders`: Fetch current orders
-- `trading212://orders/{order_id}`: Fetch a specific order by ID
+- `trading212://orders`
+- `trading212://orders/{order_id}`
 
 ### Portfolio Resources
-- `trading212://pies`: Fetch all pies
-- `trading212://pies/{pie_id}`: Fetch a specific pie by ID
+- `trading212://pies`
+- `trading212://pies/{pie_id}`
 
 ### Market Resources
-- `trading212://instruments`: Fetch all tradeable instruments
-- `trading212://exchanges`: Fetch all exchanges and their working schedules
+- `trading212://instruments`
+- `trading212://exchanges`
 
 ### Reports Resources
-- `trading212://history/exports`: Get account export reports
+- `trading212://history/exports`
 
 ## Prompts
 
