@@ -145,7 +145,7 @@ def update_pie(
     )
 ) -> AccountBucketInstrumentsDetailedResponse:
     """
-    Update an existing pie with new parameters.
+    Update an existing pie with new parameters. The pie must be renamed when updating it.
     
     Returns:
         AccountBucketInstrumentsDetailedResponse: Updated details of the pie
