@@ -106,7 +106,9 @@ class Trading212Client:
     
     def update_pie(self, pie_id: int, pie_data: PieRequest) -> AccountBucketInstrumentsDetailedResponse:
         """Update a specific pie by ID."""
-        data = self._make_requests("POST", f"/equity/pies/{pie_id}", json=pie_data.model_dump(mode="json"))
+        pie_data = pie_data.model_dump(mode="json")
+        pie_data = {k: v for k, v in pie_data.items() if v is not None}
+        data = self._make_requests("POST", f"/equity/pies/{pie_id}", json=pie_data)
         return AccountBucketInstrumentsDetailedResponse.model_validate(data)
 
     def duplicate_pie(self, pie_id: int, duplicate_bucket_request: DuplicateBucketRequest) -> AccountBucketInstrumentsDetailedResponse:

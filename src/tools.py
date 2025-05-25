@@ -61,35 +61,26 @@ def fetch_pies() -> list[AccountBucketResultResponse]:
 
 @mcp.tool("create_pie")
 def create_pie(
-    name: str = Field(
-        ...,
-        description="Name of the pie"
-    ),
-    instrument_shares: dict[str, float] = Field(
-        ...,
-        description="Dictionary mapping instrument tickers to their weights in the pie (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})",
-        example={"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}
-    ),
-    dividend_cash_action: Optional[DividendCashActionEnum] = Field(
-        default=DividendCashActionEnum.REINVEST,
-        description="How dividends are handled",
-        examples=[DividendCashActionEnum.REINVEST, DividendCashActionEnum.TO_ACCOUNT_CASH]
-    ),
-    end_date: Optional[datetime] = Field(
-        default=None,
-        description="Optional end date for the pie in ISO 8601 format (e.g., '2024-12-31T23:59:59Z')"
-    ),
-    goal: Optional[float] = Field(
-        default=None,
-        description="Total desired value of the pie in account currency"
-    ),
-    icon: Optional[str] = Field(
-        default=None,
-        description="Optional icon identifier for the pie"
-    )
+    name: str,
+    instrument_shares: dict[str, float],
+    dividend_cash_action: Optional[DividendCashActionEnum] = None,
+    end_date: Optional[datetime] = None,
+    goal: Optional[float] = None,
+    icon: Optional[str] = None
 ) -> AccountBucketInstrumentsDetailedResponse:
     """
     Create a new pie with the specified parameters.
+    
+    Args:
+        name: Name of the pie
+        instrument_shares: Dictionary mapping instrument tickers to their weights in the pie 
+            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
+        dividend_cash_action: How dividends are handled. Defaults to REINVEST. 
+            Possible values: REINVEST, TO_ACCOUNT_CASH
+        end_date: Optional end date for the pie in ISO 8601 format 
+            (e.g., '2024-12-31T23:59:59Z')
+        goal: Total desired value of the pie in account currency
+        icon: Optional icon identifier for the pie
     
     Returns:
         AccountBucketInstrumentsDetailedResponse: Details of the created pie
@@ -105,9 +96,9 @@ def create_pie(
     return client.create_pie(pie_data)
 
 @mcp.tool("delete_pie")
-def delete_pie(pie_id: int) -> None:
+def delete_pie(pie_id: int):
     """Delete a pie."""
-    client.delete_pie(pie_id)
+    return client.delete_pie(pie_id)
     
 @mcp.tool("fetch_a_pie")
 def fetch_a_pie(pie_id: int) -> AccountBucketResultResponse:
@@ -117,35 +108,27 @@ def fetch_a_pie(pie_id: int) -> AccountBucketResultResponse:
 @mcp.tool("update_pie")
 def update_pie(
     pie_id: int,
-    name: str = Field(
-        default=None,
-        description="New name for the pie"
-    ),
-    instrument_shares: dict[str, float] = Field(
-        default=None,
-        description="Dictionary mapping instrument tickers to their new weights in the pie (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})",
-        example={"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}
-    ),
-    dividend_cash_action: Optional[DividendCashActionEnum] = Field(
-        default=None,
-        description="How dividends should be handled",
-        examples=[DividendCashActionEnum.REINVEST, DividendCashActionEnum.TO_ACCOUNT_CASH]
-    ),
-    end_date: Optional[datetime] = Field(
-        default=None,
-        description="New end date for the pie in ISO 8601 format (e.g., '2024-12-31T23:59:59Z')"
-    ),
-    goal: Optional[float] = Field(
-        default=None,
-        description="New total desired value of the pie in account currency"
-    ),
-    icon: Optional[str] = Field(
-        default=None,
-        description="New icon identifier for the pie"
-    )
+    name: str = None,
+    instrument_shares: dict[str, float] = None,
+    dividend_cash_action: Optional[DividendCashActionEnum] = None,
+    end_date: Optional[datetime] = None,
+    goal: Optional[float] = None,
+    icon: Optional[str] = None
 ) -> AccountBucketInstrumentsDetailedResponse:
     """
-    Update an existing pie with new parameters.
+    Update an existing pie with new parameters. The pie must be renamed when updating it.
+    
+    Args:
+        pie_id: ID of the pie to update
+        name: New name for the pie. Required when updating a pie.
+        instrument_shares: Dictionary mapping instrument tickers to their new weights in the pie 
+            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
+        dividend_cash_action: How dividends should be handled. 
+            Possible values: REINVEST, TO_ACCOUNT_CASH
+        end_date: New end date for the pie in ISO 8601 format 
+            (e.g., '2024-12-31T23:59:59Z')
+        goal: New total desired value of the pie in account currency
+        icon: New icon identifier for the pie
     
     Returns:
         AccountBucketInstrumentsDetailedResponse: Updated details of the pie
@@ -163,14 +146,8 @@ def update_pie(
 @mcp.tool("duplicate_pie")
 def duplicate_pie(
     pie_id: int,
-    name: Optional[str] = Field(
-        default=None,
-        description="Optional new name for the duplicated pie. If not provided, will use original name with copy suffix."
-    ),
-    icon: Optional[str] = Field(
-        default=None,
-        description="Optional new icon identifier for the duplicated pie"
-    )
+    name: Optional[str] = None,
+    icon: Optional[str] = None
 ) -> AccountBucketResultResponse:
     """
     Create a duplicate of an existing pie.
@@ -198,26 +175,20 @@ def fetch_orders() -> list[Order]:
 
 @mcp.tool("place_limit_order")
 def place_limit_order(
-    ticker: str = Field(
-        ...,
-        description="Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')"
-    ),
-    quantity: float = Field(
-        ...,
-        description="Number of shares/units to trade"
-    ),
-    limit_price: float = Field(
-        ...,
-        description="Limit price for the order"
-    ),
-    time_validity: LimitRequestTimeValidityEnum = Field(
-        default=LimitRequestTimeValidityEnum.DAY,
-        description="Time validity of the order",
-        examples=[LimitRequestTimeValidityEnum.DAY, LimitRequestTimeValidityEnum.GOOD_TILL_CANCEL]
-    )
+    ticker: str,
+    quantity: float,
+    limit_price: float,
+    time_validity: LimitRequestTimeValidityEnum = LimitRequestTimeValidityEnum.DAY
 ) -> Order:
     """
     Place a limit order to buy or sell an instrument at a specified price or better.
+    
+    Args:
+        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
+        quantity: Number of shares/units to trade
+        limit_price: Limit price for the order
+        time_validity: Time validity of the order. Defaults to DAY. 
+            Possible values: DAY, GOOD_TILL_CANCEL
     
     Returns:
         Order: Details of the placed order
@@ -232,17 +203,15 @@ def place_limit_order(
 
 @mcp.tool("place_market_order")
 def place_market_order(
-    ticker: str = Field(
-        ...,
-        description="Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')"
-    ),
-    quantity: float = Field(
-        ...,
-        description="Number of shares/units to trade"
-    )
+    ticker: str,
+    quantity: float
 ) -> Order:
     """
     Place a market order to buy or sell an instrument at the current market price.
+    
+    Args:
+        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
+        quantity: Number of shares/units to trade
     
     Returns:
         Order: Details of the placed order
@@ -255,26 +224,20 @@ def place_market_order(
 
 @mcp.tool("place_stop_order")
 def place_stop_order(
-    ticker: str = Field(
-        ...,
-        description="Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')"
-    ),
-    quantity: float = Field(
-        ...,
-        description="Number of shares/units to trade"
-    ),
-    stop_price: float = Field(
-        ...,
-        description="Stop price that triggers the order"
-    ),
-    time_validity: StopRequestTimeValidityEnum = Field(
-        default=StopRequestTimeValidityEnum.DAY,
-        description="Time validity of the order",
-        examples=[StopRequestTimeValidityEnum.DAY, StopRequestTimeValidityEnum.GOOD_TILL_CANCEL]
-    )
+    ticker: str,
+    quantity: float,
+    stop_price: float,
+    time_validity: StopRequestTimeValidityEnum = StopRequestTimeValidityEnum.DAY
 ) -> Order:
     """
     Place a stop order to buy or sell an instrument when the market price reaches a specified stop price.
+    
+    Args:
+        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
+        quantity: Number of shares/units to trade
+        stop_price: Stop price that triggers the order
+        time_validity: Time validity of the order. Defaults to DAY. 
+            Possible values: DAY, GOOD_TILL_CANCEL
     
     Returns:
         Order: Details of the placed order
@@ -290,31 +253,23 @@ def place_stop_order(
 
 @mcp.tool("place_stop_limit_order")
 def place_stop_limit_order(
-    ticker: str = Field(
-        ...,
-        description="Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')"
-    ),
-    quantity: float = Field(
-        ...,
-        description="Number of shares/units to trade"
-    ),
-    stop_price: float = Field(
-        ...,
-        description="Stop price that triggers the limit order"
-    ),
-    limit_price: float = Field(
-        ...,
-        description="Limit price for the order"
-    ),
-    time_validity: StopLimitRequestTimeValidityEnum = Field(
-        default=StopLimitRequestTimeValidityEnum.DAY,
-        description="Time validity of the order",
-        examples=[StopLimitRequestTimeValidityEnum.DAY, StopLimitRequestTimeValidityEnum.GOOD_TILL_CANCEL]
-    )
+    ticker: str,
+    quantity: float,
+    stop_price: float,
+    limit_price: float,
+    time_validity: StopLimitRequestTimeValidityEnum = StopLimitRequestTimeValidityEnum.DAY
 ) -> Order:
     """
     Place a stop-limit order to buy or sell an instrument when the market price reaches a specified stop price,
     then execute at a specified limit price or better.
+    
+    Args:
+        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
+        quantity: Number of shares/units to trade
+        stop_price: Stop price that triggers the limit order
+        limit_price: Limit price for the order
+        time_validity: Time validity of the order. Defaults to DAY. 
+            Possible values: DAY, GOOD_TILL_CANCEL
     
     Returns:
         Order: Details of the placed order
@@ -388,34 +343,24 @@ def fetch_exports_list() -> list[ReportResponse]:
 
 @mcp.tool("request_csv_export")
 def request_csv_export(
-    include_dividends: bool = Field(
-        default=True,
-        description="Whether to include dividend information in the export"
-    ),
-    include_interest: bool = Field(
-        default=True,
-        description="Whether to include interest information in the export"
-    ),
-    include_orders: bool = Field(
-        default=True,
-        description="Whether to include order history in the export"
-    ),
-    include_transactions: bool = Field(
-        default=True,
-        description="Whether to include transaction history in the export"
-    ),
-    time_from: str = Field(
-        default=None,
-        description="Start time for the report in ISO 8601 format (e.g., '2023-01-01T00:00:00Z')"
-    ),
-    time_to: str = Field(
-        default=None,
-        description="End time for the report in ISO 8601 format (e.g., '2023-12-31T23:59:59Z')"
-    )
+    include_dividends: bool = True,
+    include_interest: bool = True,
+    include_orders: bool = True,
+    include_transactions: bool = True,
+    time_from: str = None,
+    time_to: str = None
 ) -> EnqueuedReportResponse:
     """
     Request a CSV export of the account's orders, dividends and transactions history.
     Once the export is complete it can be accessed from the download link in the exports list.
+    
+    Args:
+        include_dividends: Whether to include dividend information in the export. Defaults to True
+        include_interest: Whether to include interest information in the export. Defaults to True
+        include_orders: Whether to include order history in the export. Defaults to True
+        include_transactions: Whether to include transaction history in the export. Defaults to True
+        time_from: Start time for the report in ISO 8601 format (e.g., '2023-01-01T00:00:00Z')
+        time_to: End time for the report in ISO 8601 format (e.g., '2023-12-31T23:59:59Z')
     
     Returns:
         EnqueuedReportResponse: Response containing the report ID and status
