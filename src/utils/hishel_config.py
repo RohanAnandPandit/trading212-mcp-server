@@ -2,7 +2,6 @@ import hishel
 from httpcore import Request
 from hishel._utils import generate_key
 
-storage = hishel.FileStorage(ttl=3600)
 
 
 def custom_key_generator(request: Request, body: bytes):
@@ -12,6 +11,7 @@ def custom_key_generator(request: Request, body: bytes):
     path = request.url.target.decode()
     return f"{host}/{path}"
 
+storage = hishel.FileStorage(ttl=300)
 
 # All the specification configs
 controller = hishel.Controller(
