@@ -3,11 +3,7 @@ import os
 import hishel
 from typing import Optional, List, Any
 
-from models import (Account, Cash, LimitRequest, Position, Order,
-    AccountBucketResultResponse,
-    Environment, Exchange, StopLimitRequest, TradeableInstrument, HistoricalOrder,
-    PaginatedResponseHistoryDividendItem,
-    PaginatedResponseHistoryTransactionItem, ReportResponse, ReportDataIncluded, MarketRequest)
+from models import *
 
 from utils.hishel_config import storage, controller
 
@@ -16,8 +12,7 @@ class Trading212Client:
     def __init__(self, api_key: str = None, environment: str = None,
                  version: str = "v0"):
         api_key = api_key or os.getenv("TRADING212_API_KEY")
-        environment = environment or os.getenv(
-            "ENVIRONMENT") or Environment.DEMO.value
+        environment = environment or os.getenv("ENVIRONMENT") or Environment.DEMO.value
         base_url = f"https://{environment}.trading212.com/api/{version}"
         headers = {"Authorization": api_key, "Content-Type": "application/json"}
         self.client = hishel.CacheClient(base_url=base_url, storage=storage,
@@ -99,12 +94,31 @@ class Trading212Client:
         data = self._make_requests("GET", f"/equity/pies")
         return [AccountBucketResultResponse.model_validate(pie) for pie in data]
 
-    def get_pie_by_id(self, pie_id: int) -> AccountBucketResultResponse:
+    def get_pie_by_id(self, pie_id: int) -> AccountBucketInstrumentsDetailedResponse:
         """Fetch a specific pie by ID."""
         data = self._make_requests("GET", f"/equity/pies/{pie_id}")
-        return AccountBucketResultResponse.model_validate(data)
+        return AccountBucketInstrumentsDetailedResponse.model_validate(data)
+    
+    def create_pie(self, pie_data: PieRequest) -> AccountBucketInstrumentsDetailedResponse:
+        """Create a new pie."""
+        data = self._make_requests("POST", f"/equity/pies", json=pie_data.model_dump(mode="json"))
+        return AccountBucketInstrumentsDetailedResponse.model_validate(data)
+    
+    def update_pie(self, pie_id: int, pie_data: PieRequest) -> AccountBucketInstrumentsDetailedResponse:
+        """Update a specific pie by ID."""
+        data = self._make_requests("POST", f"/equity/pies/{pie_id}", json=pie_data.model_dump(mode="json"))
+        return AccountBucketInstrumentsDetailedResponse.model_validate(data)
 
-    def get_history_orders(self, cursor: Optional[int] = None,
+    def duplicate_pie(self, pie_id: int, duplicate_bucket_request: DuplicateBucketRequest) -> AccountBucketInstrumentsDetailedResponse:
+        """Duplicate a pie."""
+        data = self._make_requests("POST", f"/equity/pies/{pie_id}/duplicate", json=duplicate_bucket_request.model_dump(mode="json"))
+        return AccountBucketInstrumentsDetailedResponse.model_validate(data)
+
+    def delete_pie(self, pie_id: int):
+        """Delete a pie."""
+        return self._make_requests("DELETE", f"/equity/pies/{pie_id}")
+
+    def get_historical_order_data(self, cursor: Optional[int] = None,
                            ticker: Optional[str] = None, limit: int = 20) -> \
             List[HistoricalOrder]:
         """Fetch historical order data with pagination"""
@@ -171,45 +185,45 @@ class Trading212Client:
     def place_market_order(self, order_data: MarketRequest) -> Order:
         """Place a market order"""
         data = self._make_requests("POST", f"/equity/orders/market",
-                                   json=order_data)
+                                   json=order_data.model_dump(mode="json"))
         return Order.model_validate(data)
 
     def place_limit_order(self, order_data: LimitRequest) -> Order:
         """Place a limit order"""
         data = self._make_requests("POST", f"/equity/orders/limit",
-                                   json=order_data)
+                                   json=order_data.model_dump(mode="json"))
+        return Order.model_validate(data)
+    
+    def place_stop_order(self, order_data: StopRequest) -> Order:
+        """Place a stop order"""
+        data = self._make_requests("POST", f"/equity/orders/stop",
+                                   json=order_data.model_dump(mode="json"))
         return Order.model_validate(data)
 
     def place_stop_limit_order(self, order_data: StopLimitRequest) -> Order:
         """Place a stop-limit order"""
         data = self._make_requests("POST", f"/equity/orders/stop_limit",
-                                   json=order_data)
+                                   json=order_data.model_dump(mode="json"))
         return Order.model_validate(data)
 
     def cancel_order(self, order_id: int) -> None:
         """Cancel an existing order"""
         self._make_requests("DELETE", f"/equity/orders/{order_id}")
 
-    def duplicate_pie(self, pie_id: int) -> AccountBucketResultResponse:
-        """Duplicate a pie"""
-        data = self._make_requests("POST", f"/equity/pies/{pie_id}/duplicate")
-        return AccountBucketResultResponse.model_validate(data)
-
-    def delete_pie(self, pie_id: int) -> None:
-        """Delete a pie"""
-        self._make_requests("DELETE", f"/equity/pies/{pie_id}")
-
     def get_reports(self) -> list[ReportResponse]:
         """Get account export reports"""
         data = self._make_requests("GET", f"/history/exports")
         return [ReportResponse.model_validate(report) for report in data]
         
-    def request_report(self, data_included: ReportDataIncluded = None, time_from: str = None, time_to: str = None) -> dict:
+    def request_export(self, 
+                       data_included: ReportDataIncluded | None = None, 
+                       time_from: str = None, 
+                       time_to: str = None) -> EnqueuedReportResponse:
         """
         Request a CSV export of the account's orders, dividends and transactions history
         
         Args:
-            data_included: Dictionary specifying which data to include in the report
+            data_included: Dictionary specifying which data to include in the report. Includes all by default.
             time_from: Start time for the report in ISO 8601 format (e.g., "2023-01-01T00:00:00Z")
             time_to: End time for the report in ISO 8601 format (e.g., "2023-12-31T23:59:59Z")
             
@@ -217,14 +231,15 @@ class Trading212Client:
             dict: Response containing the report ID
         """
         payload = {}
-        if data_included:
-            payload["dataIncluded"] = data_included.model_dump()
+        data_included = data_included or ReportDataIncluded()
+        payload["dataIncluded"] = data_included.model_dump(mode="json") 
         if time_from:
             payload["timeFrom"] = time_from
         if time_to:
             payload["timeTo"] = time_to
             
-        return self._make_requests("POST", "/history/exports", json=payload)
+        data = self._make_requests("POST", "/history/exports", json=payload)
+        return EnqueuedReportResponse.model_validate(data)
 
 
 if __name__ == '__main__':
