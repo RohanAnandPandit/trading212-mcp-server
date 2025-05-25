@@ -198,6 +198,8 @@ docker build -t mcp/trading212-mcp-server .
 ### Generating API key
 - You can generate the API key from your account settings
 - Visit the [Trading212 help centre](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-How-can-I-generate-an-API-key) for more information
+- If you are using the API key for the "Practice" account in Trading212 then set the `ENVIRONMENT` to `demo` in `.env`
+- Set `ENVIRONMENT` to `live` if you are using the API key for real money
 
 
 ### Install packages
