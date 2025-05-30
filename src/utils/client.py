@@ -20,8 +20,7 @@ class Trading212Client:
 
     def _make_requests(self, method: str, url: str, **kwargs) -> Any:
         try:
-            response = self.client.request(method, url, **kwargs)
-            response.raise_for_status()
+            response = self.client.request(method, url, **kwargs)               
             return response.json()
         except httpx.HTTPStatusError as e:
             print(f"HTTP error occurred: {e}")
