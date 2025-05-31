@@ -52,8 +52,8 @@ The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprot
 ## Tools
 
 ### Instruments Metadata
-- `fetch_exchange_list`: Fetch all exchanges and their corresponding working schedules that your account has access to
-- `fetch_instrument_list`: Fetch all instruments that your account has access to
+- `search_exchange`: Fetch exchanges, optionally filtered by name or ID
+- `search_instrument`: Fetch instruments, optionally filtered by ticker or name
 
 ### Pies
 - `fetch_pies`: Fetch all pies
