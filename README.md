@@ -1,5 +1,3 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/rohananandpandit-trading212-mcp-server-badge.png)](https://mseep.ai/app/rohananandpandit-trading212-mcp-server)
-
 # Trading212 MCP Server
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
