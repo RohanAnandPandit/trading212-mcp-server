@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
 [![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/1cda5fa3-820c-4e9b-a4ad-4d5c447cd7cd)
+[![MCP Badge](https://lobehub.com/badge/mcp/rohananandpandit-trading212-mcp-server?style=plastic)](https://lobehub.com/mcp/rohananandpandit-trading212-mcp-server)
 
 ## Overview
 
