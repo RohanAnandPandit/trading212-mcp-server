@@ -9,6 +9,16 @@
 
 The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprotocol.io/introduction) server implementation that provides seamless data connectivity to the Trading212 trading platform enabling advanced interaction capabilities.
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=RohanAnandPandit%2Ftrading212-mcp-server&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left" />
+ </picture>
+</a>
+
 ## Core Features
 
 ### Trading212 API Integration
