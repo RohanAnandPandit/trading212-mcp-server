@@ -408,4 +408,4 @@ def fetch_transaction_list(
 ) -> PaginatedResponseHistoryTransactionItem:
     """Fetch superficial information about movements to and from your
     account."""
-    return client.get_history_transactions(cursor=cursor, time=time, limit=limit)
+    return client.get_history_transactions(cursor=cursor, time_from=time, limit=limit)
