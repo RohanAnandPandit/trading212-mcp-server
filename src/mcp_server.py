@@ -1,6 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 from dotenv import find_dotenv, load_dotenv
-from utils.client import Trading212Client
+from accounts import AccountRegistry
+from config import ACCOUNTS_CONFIG
 
 load_dotenv(find_dotenv())
 
@@ -12,4 +13,4 @@ mcp = FastMCP(
     port=8000,
 )
 
-client = Trading212Client()
+registry = AccountRegistry(config_path=ACCOUNTS_CONFIG)
