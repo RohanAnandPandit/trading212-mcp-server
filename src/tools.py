@@ -16,14 +16,20 @@ def search_instrument(
 
     Args:
         search_term: Search term to filter instruments by ticker or name (case-insensitive)
-        account: Account name, list of names, "all", or None for default account.
-        Instrument data is market-wide; any account's credentials work.
+        account: Account name or None for the default account. Instrument data
+            is market-wide; any account's credentials work. Multi-account input
+            (list or "all") is not allowed for this tool.
 
     Returns:
         List of matching TradeableInstrument objects, or all instruments if no
         search term is provided
     """
     clients = registry.resolve(account)
+    if len(clients) > 1:
+        raise ValueError(
+            "search_instrument returns market-wide data; "
+            "specify a single account name or None for the default."
+        )
     client = next(iter(clients.values()))
     instruments = client.get_instruments()
 
@@ -49,13 +55,19 @@ def search_exchange(
 
     Args:
         search_term: Optional search term to filter exchanges by name or ID (case-insensitive)
-        account: Account name, list of names, "all", or None for default account.
-        Exchange data is market-wide; any account's credentials work.
+        account: Account name or None for the default account. Exchange data
+            is market-wide; any account's credentials work. Multi-account input
+            (list or "all") is not allowed for this tool.
 
     Returns:
         List of matching Exchange objects, or all exchanges if no search term is provided
     """
     clients = registry.resolve(account)
+    if len(clients) > 1:
+        raise ValueError(
+            "search_exchange returns market-wide data; "
+            "specify a single account name or None for the default."
+        )
     client = next(iter(clients.values()))
     exchanges = client.get_exchanges()
 

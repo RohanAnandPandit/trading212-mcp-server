@@ -143,7 +143,7 @@ A new `format_response(results: dict[str, Any])` helper determines the response 
 ]
 ```
 
-Aggregate totals apply to: `fetch_account_cash`, `fetch_all_open_positions`.
+Aggregate totals apply to: `fetch_account_cash`. Totals for `fetch_all_open_positions` would require domain-specific aggregation (summing `quantity * currentPrice` across positions) and are out of scope for v1 — users can compute them client-side from the grouped response.
 
 ---
 
