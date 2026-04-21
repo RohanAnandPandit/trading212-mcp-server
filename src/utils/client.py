@@ -194,7 +194,7 @@ class Trading212Client:
             "/equity/history/orders",
             params=params,
         )
-        return [HistoricalOrder.model_validate(order) for order in data["items"]]
+        return [HistoricalOrder.model_validate(order.get("order", order)) for order in data["items"]]
 
     def get_history_dividends(
         self,

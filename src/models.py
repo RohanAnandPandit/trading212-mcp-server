@@ -307,28 +307,28 @@ class Tax(BaseModel):
 
 
 class HistoricalOrder(BaseModel):
-    dateCreated: Optional[datetime]
-    dateExecuted: Optional[datetime]
-    dateModified: Optional[datetime]
-    executor: Optional[HistoricalOrderExecutorEnum]
-    fillCost: Optional[float]
-    fillId: Optional[int]
-    fillPrice: Optional[float]
-    fillResult: Optional[float]
-    fillType: Optional[HistoricalOrderFillTypeEnum]
-    filledQuantity: Optional[float]
-    filledValue: Optional[float]
-    id: Optional[int]
-    limitPrice: Optional[float]
-    orderedQuantity: Optional[float]
-    orderedValue: Optional[float]
-    parentOrder: Optional[int]
-    status: Optional[HistoricalOrderStatusEnum]
-    stopPrice: Optional[float]
-    taxes: Optional[List[Tax]]
-    ticker: Optional[str]
-    timeValidity: Optional[HistoricalOrderTimeValidityEnum]
-    type: Optional[HistoricalOrderTypeEnum]
+    dateCreated: Optional[datetime] = None
+    dateExecuted: Optional[datetime] = None
+    dateModified: Optional[datetime] = None
+    executor: Optional[HistoricalOrderExecutorEnum] = None
+    fillCost: Optional[float] = None
+    fillId: Optional[int] = None
+    fillPrice: Optional[float] = None
+    fillResult: Optional[float] = None
+    fillType: Optional[HistoricalOrderFillTypeEnum] = None
+    filledQuantity: Optional[float] = None
+    filledValue: Optional[float] = None
+    id: Optional[int] = None
+    limitPrice: Optional[float] = None
+    orderedQuantity: Optional[float] = None
+    orderedValue: Optional[float] = None
+    parentOrder: Optional[int] = None
+    status: Optional[HistoricalOrderStatusEnum] = None
+    stopPrice: Optional[float] = None
+    taxes: Optional[List[Tax]] = None
+    ticker: Optional[str] = None
+    timeValidity: Optional[HistoricalOrderTimeValidityEnum] = None
+    type: Optional[HistoricalOrderTypeEnum] = None
 
 
 class HistoryDividendItem(BaseModel):
@@ -362,18 +362,18 @@ class MarketRequest(BaseModel):
 
 
 class Order(BaseModel):
-    creationTime: Optional[datetime]
-    filledQuantity: Optional[float]
-    filledValue: Optional[float]
-    id: Optional[int]
-    limitPrice: Optional[float]
-    quantity: Optional[float]
-    status: Optional[OrderStatusEnum]
-    stopPrice: Optional[float]
-    strategy: Optional[OrderStrategyEnum]
-    ticker: Optional[str]
-    type: Optional[OrderTypeEnum]
-    value: Optional[float]
+    creationTime: Optional[datetime] = None
+    filledQuantity: Optional[float] = None
+    filledValue: Optional[float] = None
+    id: Optional[int] = None
+    limitPrice: Optional[float] = None
+    quantity: Optional[float] = None
+    status: Optional[OrderStatusEnum] = None
+    stopPrice: Optional[float] = None
+    strategy: Optional[OrderStrategyEnum] = None
+    ticker: Optional[str] = None
+    type: Optional[OrderTypeEnum] = None
+    value: Optional[float] = None
 
 
 class PaginatedResponseHistoricalOrder(BaseModel):
