@@ -1,23 +1,30 @@
-from typing import Optional
-from mcp_server import mcp, client
+from typing import Optional, Union
+from mcp_server import mcp, registry
 
 from models import *
+from utils.response import format_response
 
 
 # Instruments Metadata
 @mcp.tool("search_instrument")
-def search_instrument(search_term: str = None) -> list[TradeableInstrument]:
+def search_instrument(
+    search_term: str = None,
+    account: Union[str, list[str], None] = None,
+) -> list[TradeableInstrument]:
     """
     Fetch instruments, optionally filtered by ticker or name.
 
     Args:
-        search_term: Search term to filter instruments by ticker or name
-        (case-insensitive)
+        search_term: Search term to filter instruments by ticker or name (case-insensitive)
+        account: Account name, list of names, "all", or None for default account.
+        Instrument data is market-wide; any account's credentials work.
 
     Returns:
         List of matching TradeableInstrument objects, or all instruments if no
         search term is provided
     """
+    clients = registry.resolve(account)
+    client = next(iter(clients.values()))
     instruments = client.get_instruments()
 
     if not search_term:
@@ -33,18 +40,23 @@ def search_instrument(search_term: str = None) -> list[TradeableInstrument]:
 
 
 @mcp.tool("search_exchange")
-def search_exchange(search_term: str = None) -> list[Exchange]:
+def search_exchange(
+    search_term: str = None,
+    account: Union[str, list[str], None] = None,
+) -> list[Exchange]:
     """
     Fetch exchanges, optionally filtered by name or ID.
 
     Args:
-        search_term: Optional search term to filter exchanges by name or ID
-        (case-insensitive)
+        search_term: Optional search term to filter exchanges by name or ID (case-insensitive)
+        account: Account name, list of names, "all", or None for default account.
+        Exchange data is market-wide; any account's credentials work.
 
     Returns:
-        List of matching Exchange objects, or all exchanges if no search term
-        is provided
+        List of matching Exchange objects, or all exchanges if no search term is provided
     """
+    clients = registry.resolve(account)
+    client = next(iter(clients.values()))
     exchanges = client.get_exchanges()
 
     if not search_term:
@@ -61,9 +73,21 @@ def search_exchange(search_term: str = None) -> list[Exchange]:
 
 # Pies
 @mcp.tool("fetch_pies")
-def fetch_pies() -> list[AccountBucketResultResponse]:
-    """Fetch all pies."""
-    return client.get_pies()
+def fetch_pies(account: Union[str, list[str], None] = None):
+    """
+    Fetch all pies.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_pies()
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("create_pie")
@@ -111,9 +135,22 @@ def delete_pie(pie_id: int):
 
 
 @mcp.tool("fetch_a_pie")
-def fetch_a_pie(pie_id: int) -> AccountBucketResultResponse:
-    """Fetch a specific pie by ID."""
-    return client.get_pie_by_id(pie_id)
+def fetch_a_pie(pie_id: int, account: Union[str, list[str], None] = None):
+    """
+    Fetch a specific pie by ID.
+
+    Args:
+        pie_id: ID of the pie to fetch
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_pie_by_id(pie_id)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("update_pie")
@@ -178,9 +215,21 @@ def duplicate_pie(
 
 # Equity Orders
 @mcp.tool("fetch_all_orders")
-def fetch_orders() -> list[Order]:
-    """Fetch all equity orders."""
-    return client.get_orders()
+def fetch_orders(account: Union[str, list[str], None] = None):
+    """
+    Fetch all equity orders.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_orders()
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("place_limit_order")
@@ -299,64 +348,188 @@ def cancel_order_by_id(order_id: int) -> None:
 
 
 @mcp.tool("fetch_order")
-def fetch_order_by_id(order_id: int) -> Order:
-    """Fetch a specific order by ID."""
-    return client.get_order_by_id(order_id)
+def fetch_order_by_id(order_id: int, account: Union[str, list[str], None] = None):
+    """
+    Fetch a specific order by ID.
+
+    Args:
+        order_id: ID of the order to fetch
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_order_by_id(order_id)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 # Account Data
 @mcp.tool("fetch_account_info")
-def fetch_account_info() -> Account:
-    """Fetch account metadata."""
-    return client.get_account_info()
+def fetch_account_info(account: Union[str, list[str], None] = None):
+    """
+    Fetch account metadata.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_account_info()
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("fetch_account_cash")
-def fetch_account_cash() -> Cash:
-    """Fetch account cash balance."""
-    return client.get_account_cash()
+def fetch_account_cash(account: Union[str, list[str], None] = None):
+    """
+    Fetch account cash balance.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+        When querying multiple accounts, numeric fields are summed in a __totals__ entry.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_account_cash()
+        except Exception as e:
+            results[name] = e
+    return format_response(results, compute_totals=True)
 
 
 # Personal Portfolio
 @mcp.tool("fetch_all_open_positions")
-def fetch_all_open_positions() -> list[Position]:
-    """Fetch all open positions."""
-    return client.get_account_positions()
+def fetch_all_open_positions(account: Union[str, list[str], None] = None):
+    """
+    Fetch all open positions.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_account_positions()
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("fetch_open_position_by_ticker")
-def fetch_open_position_by_ticker(ticker: str) -> Position:
-    """Fetch a position by ticker (deprecated)."""
-    return client.get_account_position_by_ticker(ticker)
+def fetch_open_position_by_ticker(ticker: str, account: Union[str, list[str], None] = None):
+    """
+    Fetch a position by ticker (deprecated).
+
+    Args:
+        ticker: Ticker symbol to look up
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_account_position_by_ticker(ticker)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("search_specific_position_by_ticker")
-def search_position_by_ticker(ticker: str) -> Position:
-    """Search for a position by ticker using POST endpoint."""
-    return client.search_position_by_ticker(ticker)
+def search_position_by_ticker(ticker: str, account: Union[str, list[str], None] = None):
+    """
+    Search for a position by ticker using POST endpoint.
+
+    Args:
+        ticker: Ticker symbol to search for
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.search_position_by_ticker(ticker)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 # Historical items
 @mcp.tool("fetch_historical_order_data")
 def fetch_historical_order_data(
-    cursor: int = None, ticker: str = None, limit: int = 20
-) -> list[HistoricalOrder]:
-    """Fetch historical order data with pagination."""
-    return client.get_historical_order_data(cursor=cursor, ticker=ticker, limit=limit)
+    cursor: int = None,
+    ticker: str = None,
+    limit: int = 20,
+    account: Union[str, list[str], None] = None,
+):
+    """
+    Fetch historical order data with pagination.
+
+    Args:
+        cursor: Pagination cursor
+        ticker: Filter by ticker symbol
+        limit: Max results (default 20)
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_historical_order_data(cursor=cursor, ticker=ticker, limit=limit)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("fetch_paid_out_dividends")
 def fetch_paid_out_dividends(
-    cursor: int = None, ticker: str = None, limit: int = 20
-) -> PaginatedResponseHistoryDividendItem:
-    """Fetch historical dividend data with pagination."""
-    return client.get_dividends(cursor=cursor, ticker=ticker, limit=limit)
+    cursor: int = None,
+    ticker: str = None,
+    limit: int = 20,
+    account: Union[str, list[str], None] = None,
+):
+    """
+    Fetch historical dividend data with pagination.
+
+    Args:
+        cursor: Pagination cursor
+        ticker: Filter by ticker symbol
+        limit: Max results (default 20)
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_dividends(cursor=cursor, ticker=ticker, limit=limit)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("fetch_exports_list")
-def fetch_exports_list() -> list[ReportResponse]:
-    """Lists detailed information about all csv account exports."""
-    return client.get_reports()
+def fetch_exports_list(account: Union[str, list[str], None] = None):
+    """
+    Lists detailed information about all csv account exports.
+
+    Args:
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_reports()
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
 
 
 @mcp.tool("request_csv_export")
@@ -404,8 +577,25 @@ def request_csv_export(
 
 @mcp.tool("fetch_transaction_list")
 def fetch_transaction_list(
-    cursor: str | None = None, time: str | None = None, limit: int = 20
-) -> PaginatedResponseHistoryTransactionItem:
-    """Fetch superficial information about movements to and from your
-    account."""
-    return client.get_history_transactions(cursor=cursor, time_from=time, limit=limit)
+    cursor: str | None = None,
+    time: str | None = None,
+    limit: int = 20,
+    account: Union[str, list[str], None] = None,
+):
+    """
+    Fetch superficial information about movements to and from your account.
+
+    Args:
+        cursor: Pagination cursor
+        time: Start time in ISO 8601 format
+        limit: Max results (default 20)
+        account: Account name, list of names, "all", or None for default account.
+    """
+    clients = registry.resolve(account)
+    results = {}
+    for name, c in clients.items():
+        try:
+            results[name] = c.get_history_transactions(cursor=cursor, time_from=time, limit=limit)
+        except Exception as e:
+            results[name] = e
+    return format_response(results)
