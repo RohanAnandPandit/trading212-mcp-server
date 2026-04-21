@@ -153,3 +153,22 @@ def test_raises_when_no_config_and_no_env_vars():
         from accounts import AccountRegistry
         with pytest.raises(ValueError, match="No accounts configured"):
             AccountRegistry(config_path="/nonexistent/path/accounts.json")
+
+
+@patch("accounts.Trading212Client")
+def test_resolve_none_with_bad_default_raises_helpful_error(MockClient, tmp_path):
+    # default names an account that doesn't exist in the accounts list
+    import json as _json
+    p = tmp_path / "accounts.json"
+    p.write_text(_json.dumps({
+        "default": "typo",
+        "accounts": [
+            {"name": "sumeet", "api_key": "k", "api_secret": "s", "environment": "live"},
+        ],
+    }))
+
+    from accounts import AccountRegistry
+    registry = AccountRegistry(config_path=str(p))
+
+    with pytest.raises(ValueError, match="Account 'typo' not found"):
+        registry.resolve(None)

@@ -1,14 +1,13 @@
 import json
 import os
-from typing import Union
 from utils.client import Trading212Client
 
 
 class AccountRegistry:
-    def __init__(self, config_path: str = None):
+    def __init__(self, config_path: str | None = None):
         config_path = config_path or os.getenv("ACCOUNTS_CONFIG", "accounts.json")
         self._clients: dict[str, Trading212Client] = {}
-        self._default: str = None
+        self._default: str | None = None
 
         if os.path.exists(config_path):
             self._load_from_file(config_path)
@@ -34,8 +33,8 @@ class AccountRegistry:
 
         if not api_key or not api_secret:
             raise ValueError(
-                "No accounts configured. Create accounts.json or set "
-                "TRADING212_API_KEY and TRADING212_API_SECRET."
+                "No accounts configured. Create accounts.json (or set ACCOUNTS_CONFIG to "
+                "point to one), or set TRADING212_API_KEY and TRADING212_API_SECRET."
             )
 
         self._clients = {
@@ -65,9 +64,9 @@ class AccountRegistry:
     def default_name(self) -> str:
         return self._default
 
-    def resolve(self, account: Union[str, list[str], None]) -> dict[str, Trading212Client]:
+    def resolve(self, account: str | list[str] | None) -> dict[str, Trading212Client]:
         if account is None:
-            return {self._default: self._clients[self._default]}
+            return {self._default: self.get_client(self._default)}
         if account == "all":
             return self.all_clients()
         if isinstance(account, list):
