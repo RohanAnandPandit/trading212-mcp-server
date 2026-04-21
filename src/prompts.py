@@ -20,7 +20,7 @@ def analyse_trading212_data_prompt():
     )
 
     try:
-        account_info = client.get_account_info()
+        account_info = client.get_account_summary()
     except Exception as e:
         print(f"Error fetching account info: {e}")
         return prompt
@@ -28,6 +28,6 @@ def analyse_trading212_data_prompt():
     return dedent(
         f"""
     {prompt}
-    Currency: {account_info.currencyCode}
+    Currency: {account_info.currency}
     """
     )

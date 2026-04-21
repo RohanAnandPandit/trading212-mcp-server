@@ -111,7 +111,7 @@ def delete_pie(pie_id: int):
 
 
 @mcp.tool("fetch_a_pie")
-def fetch_a_pie(pie_id: int) -> AccountBucketResultResponse:
+def fetch_a_pie(pie_id: int) -> AccountBucketInstrumentsDetailedResponse:
     """Fetch a specific pie by ID."""
     return client.get_pie_by_id(pie_id)
 
@@ -160,7 +160,7 @@ def update_pie(
 @mcp.tool("duplicate_pie")
 def duplicate_pie(
     pie_id: int, name: Optional[str] = None, icon: Optional[str] = None
-) -> AccountBucketResultResponse:
+) -> AccountBucketInstrumentsDetailedResponse:
     """
     Create a duplicate of an existing pie.
 
@@ -170,7 +170,7 @@ def duplicate_pie(
         icon: Optional new icon for the duplicated pie
 
     Returns:
-        AccountBucketResultResponse: Details of the duplicated pie
+        AccountBucketInstrumentsDetailedResponse: Details of the duplicated pie
     """
     duplicate_request = DuplicateBucketRequest(name=name, icon=icon)
     return client.duplicate_pie(pie_id, duplicate_request)
@@ -213,18 +213,24 @@ def place_limit_order(
 
 
 @mcp.tool("place_market_order")
-def place_market_order(ticker: str, quantity: float) -> Order:
+def place_market_order(
+    ticker: str, quantity: float, extended_hours: bool = False
+) -> Order:
     """
     Place a market order to buy or sell an instrument at the current market price.
 
     Args:
         ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
         quantity: Number of shares/units to trade
+        extended_hours: Whether the order can execute outside regular trading
+            hours when the instrument supports it
 
     Returns:
         Order: Details of the placed order
     """
-    market_request = MarketRequest(ticker=ticker, quantity=quantity)
+    market_request = MarketRequest(
+        ticker=ticker, quantity=quantity, extendedHours=extended_hours
+    )
     return client.place_market_order(market_request)
 
 
@@ -306,9 +312,15 @@ def fetch_order_by_id(order_id: int) -> Order:
 
 # Account Data
 @mcp.tool("fetch_account_info")
-def fetch_account_info() -> Account:
-    """Fetch account metadata."""
-    return client.get_account_info()
+def fetch_account_info() -> AccountSummary:
+    """Fetch the account summary."""
+    return client.get_account_summary()
+
+
+@mcp.tool("fetch_account_summary")
+def fetch_account_summary() -> AccountSummary:
+    """Fetch the account summary."""
+    return client.get_account_summary()
 
 
 @mcp.tool("fetch_account_cash")
@@ -318,21 +330,33 @@ def fetch_account_cash() -> Cash:
 
 
 # Personal Portfolio
+@mcp.tool("fetch_positions")
+def fetch_positions(ticker: str | None = None) -> list[Position]:
+    """Fetch open positions, optionally filtered by ticker."""
+    return client.get_positions(ticker=ticker)
+
+
+@mcp.tool("fetch_position_by_ticker")
+def fetch_position_by_ticker(ticker: str) -> Position:
+    """Fetch a single open position by ticker."""
+    return client.get_position_by_ticker(ticker)
+
+
 @mcp.tool("fetch_all_open_positions")
 def fetch_all_open_positions() -> list[Position]:
-    """Fetch all open positions."""
+    """Deprecated alias for fetch_positions()."""
     return client.get_account_positions()
 
 
 @mcp.tool("fetch_open_position_by_ticker")
 def fetch_open_position_by_ticker(ticker: str) -> Position:
-    """Fetch a position by ticker (deprecated)."""
+    """Deprecated alias for fetch_position_by_ticker()."""
     return client.get_account_position_by_ticker(ticker)
 
 
 @mcp.tool("search_specific_position_by_ticker")
 def search_position_by_ticker(ticker: str) -> Position:
-    """Search for a position by ticker using POST endpoint."""
+    """Deprecated alias for fetch_position_by_ticker()."""
     return client.search_position_by_ticker(ticker)
 
 
@@ -340,7 +364,7 @@ def search_position_by_ticker(ticker: str) -> Position:
 @mcp.tool("fetch_historical_order_data")
 def fetch_historical_order_data(
     cursor: int = None, ticker: str = None, limit: int = 20
-) -> list[HistoricalOrder]:
+) -> PaginatedResponseHistoricalOrder:
     """Fetch historical order data with pagination."""
     return client.get_historical_order_data(cursor=cursor, ticker=ticker, limit=limit)
 

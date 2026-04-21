@@ -1,7 +1,14 @@
-from typing import Optional, List, Dict
-from pydantic import BaseModel, Field
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ApiModel(BaseModel):
+    # Trading 212's public API is still evolving. Ignoring unknown fields keeps
+    # additive upstream changes from breaking the MCP server.
+    model_config = ConfigDict(extra="ignore")
 
 
 # --- ENUMS ---
@@ -15,76 +22,10 @@ class Environment(str, Enum):
     LIVE = "live"
 
 
-class InstrumentIssueNameEnum(str, Enum):
-    DELISTED = "DELISTED"
-    SUSPENDED = "SUSPENDED"
-    NO_LONGER_TRADABLE = "NO_LONGER_TRADABLE"
-    MAX_POSITION_SIZE_REACHED = "MAX_POSITION_SIZE_REACHED"
-    APPROACHING_MAX_POSITION_SIZE = "APPROACHING_MAX_POSITION_SIZE"
-    COMPLEX_INSTRUMENT_APP_TEST_REQUIRED = "COMPLEX_INSTRUMENT_APP_TEST_REQUIRED"
-
-
-class InstrumentIssueSeverityEnum(str, Enum):
-    IRREVERSIBLE = "IRREVERSIBLE"
-    REVERSIBLE = "REVERSIBLE"
-    INFORMATIVE = "INFORMATIVE"
-
-
 class AccountBucketResultStatusEnum(str, Enum):
     AHEAD = "AHEAD"
     ON_TRACK = "ON_TRACK"
     BEHIND = "BEHIND"
-
-
-class HistoricalOrderExecutorEnum(str, Enum):
-    API = "API"
-    IOS = "IOS"
-    ANDROID = "ANDROID"
-    WEB = "WEB"
-    SYSTEM = "SYSTEM"
-    AUTOINVEST = "AUTOINVEST"
-
-
-class HistoricalOrderFillTypeEnum(str, Enum):
-    TOTV = "TOTV"
-    OTC = "OTC"
-
-
-class HistoricalOrderStatusEnum(str, Enum):
-    LOCAL = "LOCAL"
-    UNCONFIRMED = "UNCONFIRMED"
-    CONFIRMED = "CONFIRMED"
-    NEW = "NEW"
-    CANCELLING = "CANCELLING"
-    CANCELLED = "CANCELLED"
-    PARTIALLY_FILLED = "PARTIALLY_FILLED"
-    FILLED = "FILLED"
-    REJECTED = "REJECTED"
-    REPLACING = "REPLACING"
-    REPLACED = "REPLACED"
-
-
-class HistoricalOrderTimeValidityEnum(str, Enum):
-    DAY = "DAY"
-    GOOD_TILL_CANCEL = "GOOD_TILL_CANCEL"
-
-
-class HistoricalOrderTypeEnum(str, Enum):
-    LIMIT = "LIMIT"
-    STOP = "STOP"
-    MARKET = "MARKET"
-    STOP_LIMIT = "STOP_LIMIT"
-
-
-class TaxNameEnum(str, Enum):
-    COMMISSION_TURNOVER = "COMMISSION_TURNOVER"
-    CURRENCY_CONVERSION_FEE = "CURRENCY_CONVERSION_FEE"
-    FINRA_FEE = "FINRA_FEE"
-    FRENCH_TRANSACTION_TAX = "FRENCH_TRANSACTION_TAX"
-    PTM_LEVY = "PTM_LEVY"
-    STAMP_DUTY = "STAMP_DUTY"
-    STAMP_DUTY_RESERVE_TAX = "STAMP_DUTY_RESERVE_TAX"
-    TRANSACTION_FEE = "TRANSACTION_FEE"
 
 
 class HistoryTransactionTypeEnum(str, Enum):
@@ -125,33 +66,12 @@ class OrderTypeEnum(str, Enum):
     STOP_LIMIT = "STOP_LIMIT"
 
 
-class PlaceOrderErrorCodeEnum(str, Enum):
-    SellingEquityNotOwned = "SellingEquityNotOwned"
-    CantLegalyTradeException = "CantLegalyTradeException"
-    InsufficientResources = "InsufficientResources"
-    InsufficientValueForStocksSell = "InsufficientValueForStocksSell"
-    TargetPriceTooFar = "TargetPriceTooFar"
-    TargetPriceTooClose = "TargetPriceTooClose"
-    NotEligibleForISA = "NotEligibleForISA"
-    ShareLendingAgreementNotAccepted = "ShareLendingAgreementNotAccepted"
-    InstrumentNotFound = "InstrumentNotFound"
-    MaxEquityBuyQuantityExceeded = "MaxEquityBuyQuantityExceeded"
-    MaxEquitySellQuantityExceeded = "MaxEquitySellQuantityExceeded"
-    LimitPriceMissing = "LimitPriceMissing"
-    StopPriceMissing = "StopPriceMissing"
-    TickerMissing = "TickerMissing"
-    QuantityMissing = "QuantityMissing"
-    MaxQuantityExceeded = "MaxQuantityExceeded"
-    InvalidValue = "InvalidValue"
-    InsufficientFreeForStocksException = "InsufficientFreeForStocksException"
-    MinValueExceeded = "MinValueExceeded"
-    MinQuantityExceeded = "MinQuantityExceeded"
-    PriceTooFar = "PriceTooFar"
-    UNDEFINED = "UNDEFINED"
-    NotAvailableForRealMoneyAccounts = "NotAvailableForRealMoneyAccounts"
+class OrderSideEnum(str, Enum):
+    BUY = "BUY"
+    SELL = "SELL"
 
 
-class PositionFrontendEnum(str, Enum):
+class PositionInitiatedFromEnum(str, Enum):
     API = "API"
     IOS = "IOS"
     ANDROID = "ANDROID"
@@ -203,257 +123,294 @@ class TradeableInstrumentTypeEnum(str, Enum):
     CORPACT = "CORPACT"
 
 
+class TimeValidityEnum(str, Enum):
+    DAY = "DAY"
+    GOOD_TILL_CANCEL = "GOOD_TILL_CANCEL"
+
+
 # --- MODELS ---
-class Account(BaseModel):
-    currencyCode: str = Field(..., min_length=3, max_length=3,
-                              description="ISO 4217", example="USD")
-    id: int
+class Cash(ApiModel):
+    availableToTrade: Optional[float] = None
+    inPies: Optional[float] = None
+    reservedForOrders: Optional[float] = None
 
 
-class AccountBucketDetailedResponse(BaseModel):
-    creationDate: Optional[datetime]
-    dividendCashAction: Optional[DividendCashActionEnum]
-    endDate: Optional[datetime]
-    goal: Optional[float]
-    icon: Optional[str]
-    id: Optional[int]
-    initialInvestment: Optional[float]
-    instrumentShares: Optional[Dict[str, float]]
-    name: Optional[str]
-    publicUrl: Optional[str]
+class Investments(ApiModel):
+    currentValue: Optional[float] = None
+    realizedProfitLoss: Optional[float] = None
+    totalCost: Optional[float] = None
+    unrealizedProfitLoss: Optional[float] = None
 
 
-class InstrumentIssue(BaseModel):
-    name: InstrumentIssueNameEnum
-    severity: InstrumentIssueSeverityEnum
+class AccountSummary(ApiModel):
+    cash: Optional[Cash] = None
+    currency: Optional[str] = Field(default=None, min_length=3, max_length=3)
+    id: Optional[int] = None
+    investments: Optional[Investments] = None
+    totalValue: Optional[float] = None
 
 
-class InvestmentResult(BaseModel):
-    priceAvgInvestedValue: Optional[float]
-    priceAvgResult: Optional[float]
-    priceAvgResultCoef: Optional[float]
-    priceAvgValue: Optional[float]
+class AccountBucketDetailedResponse(ApiModel):
+    creationDate: Optional[datetime] = None
+    dividendCashAction: Optional[DividendCashActionEnum] = None
+    endDate: Optional[datetime] = None
+    goal: Optional[float] = None
+    icon: Optional[str] = None
+    id: Optional[int] = None
+    initialInvestment: Optional[float] = None
+    instrumentShares: Optional[Dict[str, float]] = None
+    name: Optional[str] = None
+    publicUrl: Optional[str] = None
 
 
-class AccountBucketInstrumentResult(BaseModel):
-    currentShare: Optional[float]
-    expectedShare: Optional[float]
-    issues: Optional[List[InstrumentIssue]]
-    ownedQuantity: Optional[float]
-    result: Optional[InvestmentResult]
-    ticker: Optional[str]
+class InstrumentIssue(ApiModel):
+    name: Optional[str] = None
+    severity: Optional[str] = None
 
 
-class AccountBucketInstrumentsDetailedResponse(BaseModel):
-    instruments: Optional[List[AccountBucketInstrumentResult]]
-    settings: Optional[AccountBucketDetailedResponse]
+class InvestmentResult(ApiModel):
+    priceAvgInvestedValue: Optional[float] = None
+    priceAvgResult: Optional[float] = None
+    priceAvgResultCoef: Optional[float] = None
+    priceAvgValue: Optional[float] = None
 
 
-class DividendDetails(BaseModel):
-    gained: Optional[float]
-    inCash: Optional[float]
-    reinvested: Optional[float]
+class AccountBucketInstrumentResult(ApiModel):
+    currentShare: Optional[float] = None
+    expectedShare: Optional[float] = None
+    issues: Optional[List[InstrumentIssue]] = None
+    ownedQuantity: Optional[float] = None
+    result: Optional[InvestmentResult] = None
+    ticker: Optional[str] = None
 
 
-class AccountBucketResultResponse(BaseModel):
-    cash: Optional[float]
-    dividendDetails: Optional[DividendDetails]
-    id: Optional[int]
-    progress: Optional[float]
-    result: Optional[InvestmentResult]
-    status: Optional[AccountBucketResultStatusEnum]
+class AccountBucketInstrumentsDetailedResponse(ApiModel):
+    instruments: Optional[List[AccountBucketInstrumentResult]] = None
+    settings: Optional[AccountBucketDetailedResponse] = None
 
 
-class Cash(BaseModel):
-    blocked: Optional[float]
-    free: Optional[float]
-    invested: Optional[float]
-    pieCash: Optional[float]
-    ppl: Optional[float]
-    result: Optional[float]
-    total: Optional[float]
+class DividendDetails(ApiModel):
+    gained: Optional[float] = None
+    inCash: Optional[float] = None
+    reinvested: Optional[float] = None
 
 
-class DuplicateBucketRequest(BaseModel):
-    icon: Optional[str]
-    name: Optional[str]
+class AccountBucketResultResponse(ApiModel):
+    cash: Optional[float] = None
+    dividendDetails: Optional[DividendDetails] = None
+    id: Optional[int] = None
+    progress: Optional[float] = None
+    result: Optional[InvestmentResult] = None
+    status: Optional[AccountBucketResultStatusEnum] = None
 
 
-class EnqueuedReportResponse(BaseModel):
+class DuplicateBucketRequest(ApiModel):
+    icon: Optional[str] = None
+    name: Optional[str] = None
+
+
+class EnqueuedReportResponse(ApiModel):
     reportId: int
 
 
-class TimeEvent(BaseModel):
+class TimeEvent(ApiModel):
     date: datetime
     type: TimeEventTypeEnum
 
 
-class WorkingSchedule(BaseModel):
+class WorkingSchedule(ApiModel):
     id: int
     timeEvents: List[TimeEvent]
 
 
-class Exchange(BaseModel):
+class Exchange(ApiModel):
     id: int
     name: str
     workingSchedules: List[WorkingSchedule]
 
 
-class Tax(BaseModel):
-    fillId: Optional[str]
-    name: Optional[TaxNameEnum]
-    quantity: Optional[float]
-    timeCharged: Optional[datetime]
+class Instrument(ApiModel):
+    currency: Optional[str] = None
+    isin: Optional[str] = None
+    name: Optional[str] = None
+    ticker: Optional[str] = None
 
 
-class HistoricalOrder(BaseModel):
-    dateCreated: Optional[datetime]
-    dateExecuted: Optional[datetime]
-    dateModified: Optional[datetime]
-    executor: Optional[HistoricalOrderExecutorEnum]
-    fillCost: Optional[float]
-    fillId: Optional[int]
-    fillPrice: Optional[float]
-    fillResult: Optional[float]
-    fillType: Optional[HistoricalOrderFillTypeEnum]
-    filledQuantity: Optional[float]
-    filledValue: Optional[float]
-    id: Optional[int]
-    limitPrice: Optional[float]
-    orderedQuantity: Optional[float]
-    orderedValue: Optional[float]
-    parentOrder: Optional[int]
-    status: Optional[HistoricalOrderStatusEnum]
-    stopPrice: Optional[float]
-    taxes: Optional[List[Tax]]
-    ticker: Optional[str]
-    timeValidity: Optional[HistoricalOrderTimeValidityEnum]
-    type: Optional[HistoricalOrderTypeEnum]
+class Tax(ApiModel):
+    fillId: Optional[str] = None
+    name: Optional[str] = None
+    quantity: Optional[float] = None
+    timeCharged: Optional[datetime] = None
 
 
-class HistoryDividendItem(BaseModel):
-    amount: Optional[float]
-    amountInEuro: Optional[float]
-    grossAmountPerShare: Optional[float]
-    paidOn: Optional[datetime]
-    quantity: Optional[float]
-    reference: Optional[str]
-    ticker: Optional[str]
-    type: Optional[str]
+class FillWalletImpact(ApiModel):
+    currency: Optional[str] = None
+    fxRate: Optional[float] = None
+    netValue: Optional[float] = None
+    realisedProfitLoss: Optional[float] = None
+    taxes: Optional[List[Tax]] = None
 
 
-class HistoryTransactionItem(BaseModel):
-    amount: Optional[float]
-    dateTime: Optional[datetime]
-    reference: Optional[str]
-    type: Optional[HistoryTransactionTypeEnum]
+class Fill(ApiModel):
+    filledAt: Optional[datetime] = None
+    id: Optional[int] = None
+    price: Optional[float] = None
+    quantity: Optional[float] = None
+    tradingMethod: Optional[str] = None
+    type: Optional[str] = None
+    walletImpact: Optional[FillWalletImpact] = None
 
 
-class LimitRequest(BaseModel):
+class LimitRequest(ApiModel):
     limitPrice: float
     quantity: float
     ticker: str
     timeValidity: LimitRequestTimeValidityEnum
 
 
-class MarketRequest(BaseModel):
+class MarketRequest(ApiModel):
+    extendedHours: bool = False
     quantity: float
     ticker: str
 
 
-class Order(BaseModel):
-    creationTime: Optional[datetime]
-    filledQuantity: Optional[float]
-    filledValue: Optional[float]
-    id: Optional[int]
-    limitPrice: Optional[float]
-    quantity: Optional[float]
-    status: Optional[OrderStatusEnum]
-    stopPrice: Optional[float]
-    strategy: Optional[OrderStrategyEnum]
-    ticker: Optional[str]
-    type: Optional[OrderTypeEnum]
-    value: Optional[float]
+class Order(ApiModel):
+    createdAt: Optional[datetime] = None
+    currency: Optional[str] = None
+    extendedHours: Optional[bool] = None
+    filledQuantity: Optional[float] = None
+    filledValue: Optional[float] = None
+    id: Optional[int] = None
+    initiatedFrom: Optional[PositionInitiatedFromEnum] = None
+    instrument: Optional[Instrument] = None
+    limitPrice: Optional[float] = None
+    quantity: Optional[float] = None
+    side: Optional[OrderSideEnum] = None
+    status: Optional[OrderStatusEnum] = None
+    stopPrice: Optional[float] = None
+    strategy: Optional[OrderStrategyEnum] = None
+    ticker: Optional[str] = None
+    timeInForce: Optional[TimeValidityEnum] = None
+    type: Optional[OrderTypeEnum] = None
+    value: Optional[float] = None
 
 
-class PaginatedResponseHistoricalOrder(BaseModel):
+class HistoricalOrder(ApiModel):
+    fill: Optional[Fill] = None
+    order: Optional[Order] = None
+
+
+class HistoryDividendItem(ApiModel):
+    amount: Optional[float] = None
+    amountInEuro: Optional[float] = None
+    currency: Optional[str] = None
+    grossAmountPerShare: Optional[float] = None
+    instrument: Optional[Instrument] = None
+    paidOn: Optional[datetime] = None
+    quantity: Optional[float] = None
+    reference: Optional[str] = None
+    ticker: Optional[str] = None
+    tickerCurrency: Optional[str] = None
+    type: Optional[str] = None
+
+
+class HistoryTransactionItem(ApiModel):
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    dateTime: Optional[datetime] = None
+    reference: Optional[str] = None
+    type: Optional[HistoryTransactionTypeEnum] = None
+
+
+class PaginatedResponseHistoricalOrder(ApiModel):
     items: List[HistoricalOrder]
-    nextPagePath: Optional[str]
+    nextPagePath: Optional[str] = None
 
 
-class PaginatedResponseHistoryDividendItem(BaseModel):
+class PaginatedResponseHistoryDividendItem(ApiModel):
     items: List[HistoryDividendItem]
-    nextPagePath: Optional[str]
+    nextPagePath: Optional[str] = None
 
 
-class PaginatedResponseHistoryTransactionItem(BaseModel):
+class PaginatedResponseHistoryTransactionItem(ApiModel):
     items: List[HistoryTransactionItem]
-    nextPagePath: Optional[str]
+    nextPagePath: Optional[str] = None
 
 
-class PieRequest(BaseModel):
+class PieRequest(ApiModel):
     dividendCashAction: Optional[DividendCashActionEnum] = Field(
+        default=None,
         description="How dividends are handled",
-        examples=[DividendCashActionEnum.REINVEST,
-                  DividendCashActionEnum.TO_ACCOUNT_CASH]
+        examples=[
+            DividendCashActionEnum.REINVEST,
+            DividendCashActionEnum.TO_ACCOUNT_CASH,
+        ],
     )
-    endDate: Optional[datetime] = Field(format="date-time")
+    endDate: Optional[datetime] = Field(default=None, format="date-time")
     goal: Optional[float] = Field(
-        description="Total desired value of the pie in account currency")
-    icon: Optional[str] = Field()
+        default=None,
+        description="Total desired value of the pie in account currency",
+    )
+    icon: Optional[str] = None
     instrumentShares: Optional[Dict[str, float]] = Field(
+        default=None,
         examples=[{"AAPL_US_EQ": 0.5, "MSFT_US_EQ": 0.5}],
         description="The shares of each instrument in the pie",
     )
-    name: Optional[str] = Field()
+    name: Optional[str] = None
 
 
-class PlaceOrderError(BaseModel):
-    clarification: Optional[str]
-    code: Optional[PlaceOrderErrorCodeEnum]
+class PlaceOrderError(ApiModel):
+    clarification: Optional[str] = None
+    code: Optional[str] = None
 
 
-class Position(BaseModel):
-    averagePrice: Optional[float]
-    currentPrice: Optional[float]
-    frontend: Optional[PositionFrontendEnum]
-    fxPpl: Optional[float]
-    initialFillDate: Optional[datetime]
-    maxBuy: Optional[float]
-    maxSell: Optional[float]
-    pieQuantity: Optional[float]
-    ppl: Optional[float]
-    quantity: Optional[float]
-    ticker: Optional[str]
+class PositionWalletImpact(ApiModel):
+    currency: Optional[str] = None
+    currentValue: Optional[float] = None
+    fxImpact: Optional[float] = None
+    totalCost: Optional[float] = None
+    unrealizedProfitLoss: Optional[float] = None
 
 
-class PositionRequest(BaseModel):
+class Position(ApiModel):
+    averagePricePaid: Optional[float] = None
+    createdAt: Optional[datetime] = None
+    currentPrice: Optional[float] = None
+    instrument: Optional[Instrument] = None
+    quantity: Optional[float] = None
+    quantityAvailableForTrading: Optional[float] = None
+    quantityInPies: Optional[float] = None
+    walletImpact: Optional[PositionWalletImpact] = None
+
+
+class PositionRequest(ApiModel):
     ticker: str
 
 
-class ReportDataIncluded(BaseModel):
+class ReportDataIncluded(ApiModel):
     includeDividends: Optional[bool] = True
     includeInterest: Optional[bool] = True
     includeOrders: Optional[bool] = True
     includeTransactions: Optional[bool] = True
 
 
-class PublicReportRequest(BaseModel):
-    dataIncluded: Optional[ReportDataIncluded]
-    timeFrom: Optional[datetime]
-    timeTo: Optional[datetime]
+class PublicReportRequest(ApiModel):
+    dataIncluded: Optional[ReportDataIncluded] = None
+    timeFrom: Optional[datetime] = None
+    timeTo: Optional[datetime] = None
 
 
-class ReportResponse(BaseModel):
-    dataIncluded: Optional[ReportDataIncluded]
-    downloadLink: Optional[str]
-    reportId: Optional[int]
-    status: Optional[ReportResponseStatusEnum]
-    timeFrom: Optional[datetime]
-    timeTo: Optional[datetime]
+class ReportResponse(ApiModel):
+    dataIncluded: Optional[ReportDataIncluded] = None
+    downloadLink: Optional[str] = None
+    reportId: Optional[int] = None
+    status: Optional[ReportResponseStatusEnum] = None
+    timeFrom: Optional[datetime] = None
+    timeTo: Optional[datetime] = None
 
 
-class StopLimitRequest(BaseModel):
+class StopLimitRequest(ApiModel):
     limitPrice: float
     quantity: float
     stopPrice: float
@@ -461,25 +418,25 @@ class StopLimitRequest(BaseModel):
     timeValidity: StopLimitRequestTimeValidityEnum
 
 
-class StopRequest(BaseModel):
+class StopRequest(ApiModel):
     quantity: float
     stopPrice: float
     ticker: str
     timeValidity: StopRequestTimeValidityEnum
 
 
-class TradeableInstrument(BaseModel):
-    addedOn: Optional[datetime]
-    currencyCode: Optional[str]
-    isin: Optional[str]
-    maxOpenQuantity: Optional[float]
-    minTradeQuantity: Optional[float]
-    name: Optional[str]
-    shortName: Optional[str]
-    ticker: Optional[str]
-    type: Optional[TradeableInstrumentTypeEnum]
-    workingScheduleId: Optional[int]
+class TradeableInstrument(ApiModel):
+    addedOn: Optional[datetime] = None
+    currencyCode: Optional[str] = None
+    extendedHours: Optional[bool] = None
+    isin: Optional[str] = None
+    maxOpenQuantity: Optional[float] = None
+    minTradeQuantity: Optional[float] = None
+    name: Optional[str] = None
+    shortName: Optional[str] = None
+    ticker: Optional[str] = None
+    type: Optional[TradeableInstrumentTypeEnum] = None
+    workingScheduleId: Optional[int] = None
 
 
-# Fix forward references if needed
 WorkingSchedule.model_rebuild()

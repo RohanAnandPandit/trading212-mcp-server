@@ -1,14 +1,20 @@
 from mcp_server import mcp, client
-from models import Account, Cash, Position, Order, \
-    AccountBucketResultResponse, \
+from models import AccountSummary, Cash, Position, Order, \
+    AccountBucketInstrumentsDetailedResponse, AccountBucketResultResponse, \
     Exchange, TradeableInstrument, ReportResponse
 
 
 # ---- MCP Resources ----
 @mcp.resource("trading212://account/info")
-def get_account_info() -> Account:
-    """Fetch account metadata."""
-    return client.get_account_info()
+def get_account_info() -> AccountSummary:
+    """Fetch the account summary."""
+    return client.get_account_summary()
+
+
+@mcp.resource("trading212://account/summary")
+def get_account_summary() -> AccountSummary:
+    """Fetch the account summary."""
+    return client.get_account_summary()
 
 
 @mcp.resource("trading212://account/cash")
@@ -19,13 +25,37 @@ def get_account_cash() -> Cash:
 
 @mcp.resource("trading212://account/portfolio")
 def get_account_positions() -> list[Position]:
-    """Fetch all open positions."""
+    """Deprecated alias for trading212://positions."""
+    return client.get_account_positions()
+
+
+@mcp.resource("trading212://account/positions")
+def get_account_positions_v2() -> list[Position]:
+    """Compatibility alias for trading212://positions."""
     return client.get_account_positions()
 
 
 @mcp.resource("trading212://account/portfolio/{ticker}")
 def get_account_position_by_ticker(ticker: str) -> Position:
-    """Fetch an open position by ticker."""
+    """Deprecated alias for trading212://positions/{ticker}."""
+    return client.get_account_position_by_ticker(ticker)
+
+
+@mcp.resource("trading212://account/positions/{ticker}")
+def get_account_position_by_ticker_v2(ticker: str) -> Position:
+    """Compatibility alias for trading212://positions/{ticker}."""
+    return client.get_account_position_by_ticker(ticker)
+
+
+@mcp.resource("trading212://positions")
+def get_positions() -> list[Position]:
+    """Fetch all open positions."""
+    return client.get_positions()
+
+
+@mcp.resource("trading212://positions/{ticker}")
+def get_position_by_ticker(ticker: str) -> Position:
+    """Fetch a single open position by ticker."""
     return client.get_account_position_by_ticker(ticker)
 
 
@@ -48,7 +78,7 @@ def get_pies() -> list[AccountBucketResultResponse]:
 
 
 @mcp.resource("trading212://pies/{pie_id}")
-def get_pie_by_id(pie_id: int) -> AccountBucketResultResponse:
+def get_pie_by_id(pie_id: int) -> AccountBucketInstrumentsDetailedResponse:
     """Fetch a specific pie by ID."""
     return client.get_pie_by_id(pie_id)
 
