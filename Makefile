@@ -9,3 +9,6 @@ validate:
 
 run:
 	./scripts/run_server.sh
+
+test:
+	uv run pytest tests/ -v
