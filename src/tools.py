@@ -106,6 +106,7 @@ def fetch_pies(account: Union[str, list[str], None] = None):
 def create_pie(
     name: str,
     instrument_shares: dict[str, float],
+    account: str,
     dividend_cash_action: Optional[DividendCashActionEnum] = None,
     end_date: Optional[datetime] = None,
     goal: Optional[float] = None,
@@ -117,8 +118,8 @@ def create_pie(
     Args:
         name: Name of the pie
         instrument_shares: Dictionary mapping instrument tickers to their
-        weights in the pie
-            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
+        weights in the pie (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
+        account: Account name to create the pie in (required)
         dividend_cash_action: How dividends are handled. Defaults to REINVEST.
             Possible values: REINVEST, TO_ACCOUNT_CASH
         end_date: Optional end date for the pie in ISO 8601 format
@@ -129,6 +130,7 @@ def create_pie(
     Returns:
         AccountBucketInstrumentsDetailedResponse: Details of the created pie
     """
+    client = registry.get_client(account)
     pie_data = PieRequest(
         name=name,
         instrumentShares=instrument_shares,
@@ -141,9 +143,15 @@ def create_pie(
 
 
 @mcp.tool("delete_pie")
-def delete_pie(pie_id: int):
-    """Delete a pie."""
-    return client.delete_pie(pie_id)
+def delete_pie(pie_id: int, account: str):
+    """
+    Delete a pie.
+
+    Args:
+        pie_id: ID of the pie to delete
+        account: Account name that owns the pie (required)
+    """
+    return registry.get_client(account).delete_pie(pie_id)
 
 
 @mcp.tool("fetch_a_pie")
@@ -168,6 +176,7 @@ def fetch_a_pie(pie_id: int, account: Union[str, list[str], None] = None):
 @mcp.tool("update_pie")
 def update_pie(
     pie_id: int,
+    account: str,
     name: str = None,
     instrument_shares: dict[str, float] = None,
     dividend_cash_action: Optional[DividendCashActionEnum] = None,
@@ -181,20 +190,20 @@ def update_pie(
 
     Args:
         pie_id: ID of the pie to update
+        account: Account name that owns the pie (required)
         name: New name for the pie. Required when updating a pie.
         instrument_shares: Dictionary mapping instrument tickers to their new
-        weights in the pie
-            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
+        weights in the pie (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})
         dividend_cash_action: How dividends should be handled.
             Possible values: REINVEST, TO_ACCOUNT_CASH
         end_date: New end date for the pie in ISO 8601 format
-            (e.g., '2024-12-31T23:59:59Z')
         goal: New total desired value of the pie in account currency
         icon: New icon identifier for the pie
 
     Returns:
         AccountBucketInstrumentsDetailedResponse: Updated details of the pie
     """
+    client = registry.get_client(account)
     pie_data = PieRequest(
         name=name,
         instrumentShares=instrument_shares,
@@ -208,13 +217,17 @@ def update_pie(
 
 @mcp.tool("duplicate_pie")
 def duplicate_pie(
-    pie_id: int, name: Optional[str] = None, icon: Optional[str] = None
+    pie_id: int,
+    account: str,
+    name: Optional[str] = None,
+    icon: Optional[str] = None,
 ) -> AccountBucketResultResponse:
     """
     Create a duplicate of an existing pie.
 
     Args:
         pie_id: ID of the pie to duplicate
+        account: Account name that owns the pie (required)
         name: Optional new name for the duplicated pie
         icon: Optional new icon for the duplicated pie
 
@@ -222,7 +235,7 @@ def duplicate_pie(
         AccountBucketResultResponse: Details of the duplicated pie
     """
     duplicate_request = DuplicateBucketRequest(name=name, icon=icon)
-    return client.duplicate_pie(pie_id, duplicate_request)
+    return registry.get_client(account).duplicate_pie(pie_id, duplicate_request)
 
 
 # Equity Orders
@@ -249,6 +262,7 @@ def place_limit_order(
     ticker: str,
     quantity: float,
     limit_price: float,
+    account: str,
     time_validity: LimitRequestTimeValidityEnum = LimitRequestTimeValidityEnum.DAY,
 ) -> Order:
     """
@@ -258,6 +272,7 @@ def place_limit_order(
         ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
         quantity: Number of shares/units to trade
         limit_price: Limit price for the order
+        account: Account name to place the order in (required)
         time_validity: Time validity of the order. Defaults to DAY.
             Possible values: DAY, GOOD_TILL_CANCEL
 
@@ -270,23 +285,24 @@ def place_limit_order(
         limitPrice=limit_price,
         timeValidity=time_validity,
     )
-    return client.place_limit_order(limit_request)
+    return registry.get_client(account).place_limit_order(limit_request)
 
 
 @mcp.tool("place_market_order")
-def place_market_order(ticker: str, quantity: float) -> Order:
+def place_market_order(ticker: str, quantity: float, account: str) -> Order:
     """
     Place a market order to buy or sell an instrument at the current market price.
 
     Args:
         ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
         quantity: Number of shares/units to trade
+        account: Account name to place the order in (required)
 
     Returns:
         Order: Details of the placed order
     """
     market_request = MarketRequest(ticker=ticker, quantity=quantity)
-    return client.place_market_order(market_request)
+    return registry.get_client(account).place_market_order(market_request)
 
 
 @mcp.tool("place_stop_order")
@@ -294,6 +310,7 @@ def place_stop_order(
     ticker: str,
     quantity: float,
     stop_price: float,
+    account: str,
     time_validity: StopRequestTimeValidityEnum = StopRequestTimeValidityEnum.DAY,
 ) -> Order:
     """
@@ -304,6 +321,7 @@ def place_stop_order(
         ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')
         quantity: Number of shares/units to trade
         stop_price: Stop price that triggers the order
+        account: Account name to place the order in (required)
         time_validity: Time validity of the order. Defaults to DAY.
             Possible values: DAY, GOOD_TILL_CANCEL
 
@@ -316,7 +334,7 @@ def place_stop_order(
         stopPrice=stop_price,
         timeValidity=time_validity,
     )
-    return client.place_stop_order(stop_request)
+    return registry.get_client(account).place_stop_order(stop_request)
 
 
 @mcp.tool("place_stop_limit_order")
@@ -325,6 +343,7 @@ def place_stop_limit_order(
     quantity: float,
     stop_price: float,
     limit_price: float,
+    account: str,
     time_validity: StopLimitRequestTimeValidityEnum = StopLimitRequestTimeValidityEnum.DAY,
 ) -> Order:
     """
@@ -337,6 +356,7 @@ def place_stop_limit_order(
         quantity: Number of shares/units to trade
         stop_price: Stop price that triggers the limit order
         limit_price: Limit price for the order
+        account: Account name to place the order in (required)
         time_validity: Time validity of the order. Defaults to DAY.
             Possible values: DAY, GOOD_TILL_CANCEL
 
@@ -350,13 +370,19 @@ def place_stop_limit_order(
         limitPrice=limit_price,
         timeValidity=time_validity,
     )
-    return client.place_stop_limit_order(stop_limit_request)
+    return registry.get_client(account).place_stop_limit_order(stop_limit_request)
 
 
 @mcp.tool("cancel_order")
-def cancel_order_by_id(order_id: int) -> None:
-    """Cancel an existing order."""
-    return client.cancel_order(order_id)
+def cancel_order_by_id(order_id: int, account: str) -> None:
+    """
+    Cancel an existing order.
+
+    Args:
+        order_id: ID of the order to cancel
+        account: Account name that owns the order (required)
+    """
+    return registry.get_client(account).cancel_order(order_id)
 
 
 @mcp.tool("fetch_order")
@@ -546,6 +572,7 @@ def fetch_exports_list(account: Union[str, list[str], None] = None):
 
 @mcp.tool("request_csv_export")
 def request_csv_export(
+    account: str,
     include_dividends: bool = True,
     include_interest: bool = True,
     include_orders: bool = True,
@@ -556,26 +583,20 @@ def request_csv_export(
     """
     Request a CSV export of the account's orders, dividends and transactions
     history.
-    Once the export is complete it can be accessed from the download link in the
-     exports list.
 
     Args:
-        include_dividends: Whether to include dividend information in the export.
-            Defaults to True
-        include_interest: Whether to include interest information in the export.
-        Defaults to True
-        include_orders: Whether to include order history in the export.
-        Defaults to True
-        include_transactions: Whether to include transaction history in the export.
-        Defaults to True
-        time_from: Start time for the report in ISO 8601 format
-        (e.g., '2023-01-01T00:00:00Z')
-        time_to: End time for the report in ISO 8601 format
-        (e.g., '2023-12-31T23:59:59Z')
+        account: Account name to export data for (required)
+        include_dividends: Whether to include dividend information. Defaults to True
+        include_interest: Whether to include interest information. Defaults to True
+        include_orders: Whether to include order history. Defaults to True
+        include_transactions: Whether to include transaction history. Defaults to True
+        time_from: Start time in ISO 8601 format (e.g., '2023-01-01T00:00:00Z')
+        time_to: End time in ISO 8601 format (e.g., '2023-12-31T23:59:59Z')
 
     Returns:
         EnqueuedReportResponse: Response containing the report ID and status
     """
+    client = registry.get_client(account)
     data_included = ReportDataIncluded(
         includeDividends=include_dividends,
         includeInterest=include_interest,
