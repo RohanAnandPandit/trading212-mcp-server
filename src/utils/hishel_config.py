@@ -2,10 +2,11 @@ import hishel
 
 storage = hishel.FileStorage(ttl=300)
 
-# All the specification configs
+# The API exposes non-idempotent POST endpoints for orders, pies, and exports,
+# so we only cache GET requests.
 controller = hishel.Controller(
-    # Cache only GET and POST methods
-    cacheable_methods=["GET", "POST"],
+    # Cache only GET methods
+    cacheable_methods=["GET"],
 
     # Cache only 200 status codes
     cacheable_status_codes=[200],
