@@ -230,7 +230,6 @@ docker build -t mcp/trading212-mcp-server .
 - If you are using the API key for the "Practice" account in Trading212 then set the `ENVIRONMENT` to `demo` in `.env`
 - Set `ENVIRONMENT` to `live` if you are using the API key for real money
 - `docs/api.json` is the canonical checked-in copy of the latest public Trading 212 API schema used for this project
-- `docs/openapi_spec.json` is currently kept as a compatibility copy and matches `docs/api.json`
 
 
 ### Install packages
