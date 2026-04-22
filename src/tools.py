@@ -5,6 +5,20 @@ from models import *
 from utils.response import format_response
 
 
+@mcp.tool("list_accounts")
+def list_accounts() -> dict:
+    """
+    List all configured Trading212 accounts and the default account name.
+
+    Returns:
+        dict with 'default' (str) and 'accounts' (list of str) keys
+    """
+    return {
+        "default": registry.default_name(),
+        "accounts": registry.account_names(),
+    }
+
+
 # Instruments Metadata
 @mcp.tool("search_instrument")
 def search_instrument(
