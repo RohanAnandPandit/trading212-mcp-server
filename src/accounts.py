@@ -18,6 +18,12 @@ class AccountRegistry:
         with open(config_path) as f:
             config = json.load(f)
 
+        for required_key in ("default", "accounts"):
+            if required_key not in config:
+                raise ValueError(
+                    f"accounts.json at '{config_path}' is missing required key '{required_key}'."
+                )
+
         self._default = config["default"]
         for account in config["accounts"]:
             self._clients[account["name"]] = Trading212Client(

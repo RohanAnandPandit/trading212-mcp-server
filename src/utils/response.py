@@ -43,7 +43,7 @@ def format_response(
         else:
             serialised = _to_dict(data)
             entries.append({"account": account_name, "data": serialised})
-            if compute_totals:
+            if compute_totals and isinstance(serialised, dict):
                 data_dicts_for_totals.append(serialised)
 
     if compute_totals and data_dicts_for_totals:

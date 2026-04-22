@@ -172,3 +172,23 @@ def test_resolve_none_with_bad_default_raises_helpful_error(MockClient, tmp_path
 
     with pytest.raises(ValueError, match="Account 'typo' not found"):
         registry.resolve(None)
+
+
+@patch("accounts.Trading212Client")
+def test_raises_helpful_error_when_default_key_missing(MockClient, tmp_path):
+    p = tmp_path / "accounts.json"
+    p.write_text(json.dumps({"accounts": []}))
+
+    from accounts import AccountRegistry
+    with pytest.raises(ValueError, match="missing required key 'default'"):
+        AccountRegistry(config_path=str(p))
+
+
+@patch("accounts.Trading212Client")
+def test_raises_helpful_error_when_accounts_key_missing(MockClient, tmp_path):
+    p = tmp_path / "accounts.json"
+    p.write_text(json.dumps({"default": "sumeet"}))
+
+    from accounts import AccountRegistry
+    with pytest.raises(ValueError, match="missing required key 'accounts'"):
+        AccountRegistry(config_path=str(p))

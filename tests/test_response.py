@@ -102,3 +102,15 @@ def test_totals_skips_boolean_fields():
 def test_single_account_exception_returns_error_entry():
     result = format_response({"sumeet": Exception("API down")})
     assert result == {"account": "sumeet", "error": "API down"}
+
+
+def test_totals_skipped_when_data_is_list():
+    result = format_response(
+        {
+            "sumeet": [{"ticker": "AAPL", "quantity": 10.0}],
+            "wife":   [{"ticker": "GOOG", "quantity": 2.0}],
+        },
+        compute_totals=True,
+    )
+    # no __totals__ entry because list-shaped data can't be summed field-wise
+    assert not any(e["account"] == "__totals__" for e in result)
