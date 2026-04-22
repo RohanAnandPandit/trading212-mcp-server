@@ -143,7 +143,7 @@ def create_pie(
 
 
 @mcp.tool("delete_pie")
-def delete_pie(pie_id: int, account: str):
+def delete_pie(pie_id: int, account: str) -> None:
     """
     Delete a pie.
 
