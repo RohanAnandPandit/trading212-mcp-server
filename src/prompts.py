@@ -1,5 +1,5 @@
 from textwrap import dedent
-from mcp_server import mcp, client
+from mcp_server import mcp, registry
 
 
 # ---- MCP Prompts ----
@@ -20,6 +20,7 @@ def analyse_trading212_data_prompt():
     )
 
     try:
+        client = registry.get_client(registry.default_name())
         account_info = client.get_account_info()
     except Exception as e:
         print(f"Error fetching account info: {e}")

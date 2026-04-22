@@ -1,7 +1,13 @@
-from mcp_server import mcp, client
+from mcp_server import mcp, registry
 from models import Account, Cash, Position, Order, \
     AccountBucketResultResponse, \
     Exchange, TradeableInstrument, ReportResponse
+
+
+# Resources have URI-based routing with no account parameter, so they are
+# pinned to the default account. Captured once at import since the registry's
+# default is fixed after construction.
+client = registry.get_client(registry.default_name())
 
 
 # ---- MCP Resources ----
