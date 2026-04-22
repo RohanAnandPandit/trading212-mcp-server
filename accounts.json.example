@@ -1,0 +1,17 @@
+{
+  "default": "my_account",
+  "accounts": [
+    {
+      "name": "my_account",
+      "api_key": "YOUR_API_KEY_HERE",
+      "api_secret": "YOUR_API_SECRET_HERE",
+      "environment": "live"
+    },
+    {
+      "name": "demo_account",
+      "api_key": "YOUR_DEMO_API_KEY_HERE",
+      "api_secret": "YOUR_DEMO_API_SECRET_HERE",
+      "environment": "demo"
+    }
+  ]
+}
