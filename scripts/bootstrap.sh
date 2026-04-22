@@ -29,8 +29,16 @@ fi
 
 echo "==> Bootstrap complete"
 echo
-echo "Next steps:"
-echo "1. cp .env.example .env"
-echo "2. Fill in Trading212 credentials in .env"
-echo "3. Run: ./scripts/configure_claude_mcp.sh"
-echo "4. Run: ./scripts/validate_setup.sh"
+echo "Next steps — pick ONE configuration path:"
+echo
+echo "  Multi-account (recommended):"
+echo "    1. cp accounts.json.example accounts.json"
+echo "    2. Edit accounts.json — add one entry per Trading212 account"
+echo
+echo "  Single-account (legacy, backward-compatible):"
+echo "    1. cp .env.example .env"
+echo "    2. Fill in Trading212 credentials in .env"
+echo
+echo "Then:"
+echo "  3. Run: ./scripts/configure_claude_mcp.sh"
+echo "  4. Run: ./scripts/validate_setup.sh"

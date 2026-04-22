@@ -6,7 +6,7 @@ This fork contains a patched Trading212 client that uses API key + API secret wi
 
 - Conda installed
 - Claude Code installed and available as `claude`
-- A Trading212 API key and secret
+- One or more Trading212 API key/secret pairs (one per account you want to query)
 
 # Trading212 MCP Server Setup
 
@@ -18,7 +18,26 @@ This fork contains a patched Trading212 client that uses API key + API secret wi
 
 ### macOS / Linux
 
-Run everything using `make`:
+The server supports two configuration paths. Pick one — the scripts auto-detect which you used.
+
+**Multi-account (recommended):** configure any number of Trading212 accounts in `accounts.json` and query them individually, in subsets, or all at once via the `account` parameter on each tool.
+
+```bash
+git clone <your-fork-url>
+cd trading212-mcp-server
+
+make bootstrap
+cp accounts.json.example accounts.json
+# 👉 Edit accounts.json — one entry per account; set "default" to the account
+#    used when a tool is called without an explicit account param
+
+make configure
+make validate
+
+claude
+```
+
+**Single-account (legacy, backward-compatible):** if `accounts.json` is absent, the server falls back to `.env` and behaves identically to the pre-multi-account version.
 
 ```bash
 git clone <your-fork-url>
@@ -26,13 +45,40 @@ cd trading212-mcp-server
 
 make bootstrap
 cp .env.example .env
-# 👉 Now edit .env and add your API key + secret
+# 👉 Edit .env and add TRADING212_API_KEY, TRADING212_API_SECRET, ENVIRONMENT
 
 make configure
 make validate
 
 claude
 ```
+
+#### accounts.json format
+
+```json
+{
+  "default": "my_account",
+  "accounts": [
+    {"name": "my_account",   "api_key": "...", "api_secret": "...", "environment": "live"},
+    {"name": "demo_account", "api_key": "...", "api_secret": "...", "environment": "demo"}
+  ]
+}
+```
+
+- `name` — unique identifier referenced by the `account` tool parameter (case-sensitive)
+- `environment` — `"live"` or `"demo"`
+- `default` — account used when a read tool is called with `account=None`
+
+`accounts.json` is gitignored; credentials never land in the repo. See `accounts.json.example` for the template.
+
+#### What the scripts do
+
+| Script | Behaviour |
+|---|---|
+| `scripts/bootstrap.sh` | Create conda env `.212`, install dependencies |
+| `scripts/configure_claude_mcp.sh` | Register the MCP server with Claude. If `accounts.json` exists, passes `ACCOUNTS_CONFIG` to the MCP; otherwise sources `.env` and passes `TRADING212_API_KEY`/`TRADING212_API_SECRET`/`ENVIRONMENT`. |
+| `scripts/validate_setup.sh` | If `accounts.json` exists, validates every configured account against the Trading212 API. Otherwise validates the single `.env` credentials. Then checks the Claude MCP registration. |
+| `scripts/run_server.sh` | Activate the conda env and launch the server directly (useful for local debugging). Works in both modes. |
 
 ### Windows (PowerShell)
 
