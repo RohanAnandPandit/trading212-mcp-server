@@ -11,11 +11,13 @@ The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprot
 
 ## Star History
 
+## Star History
+
 <a href="https://www.star-history.com/?repos=RohanAnandPandit%2Ftrading212-mcp-server&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&theme=dark&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
  </picture>
 </a>
 
