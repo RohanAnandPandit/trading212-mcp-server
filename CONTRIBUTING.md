@@ -76,11 +76,17 @@ def analyze_trading_data(data: str) -> str:
 
 ## Testing
 
-Ensure all new features include appropriate tests. Run tests using:
+Ensure all new features include appropriate tests. Install the locked runtime
+and development dependencies, then run tests using:
 
 ```bash
-poetry run pytest
+uv sync --frozen
+uv run --frozen pytest -q
 ```
+
+The cache regression suite uses synthetic credentials, temporary directories,
+and a mocked HTTP transport. It does not require a Trading212 account or make
+live Trading212 requests. GitHub Actions runs it on Python 3.11.
 
 ## Code Style
 

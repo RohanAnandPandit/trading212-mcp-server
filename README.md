@@ -256,6 +256,37 @@ In trading212-mcp-server repo:
 uv run src/server.py
 ```
 
+#### Response caching and upgrading
+
+Successful GET responses use a persistent cache with a 300-second storage TTL
+and the existing stale-response fallback. POST and DELETE requests are not
+cached. Each combination of credentials and API base URL has a separate
+directory under `.cache/trading212-v2/`, relative to the server's working
+directory. The directory name is a SHA-256 fingerprint of the full
+Authorization value and base URL; it does not expose raw credentials.
+Clients using the same credentials and base URL can reuse cached responses
+across restarts. Construct a new `Trading212Client` when changing credentials;
+do not replace credentials on an existing client's underlying HTTP client.
+
+This fixes a shared-cache issue where clients using different credentials
+could receive another account's cached response. To upgrade:
+
+1. Stop all old server processes using the cache, including other sessions
+   sharing the same working directory or cache volume.
+2. Remove the old application's `.cache/hishel/` directory from that working
+   directory or volume. Confirm the location before deleting it.
+3. Install the fixed version and restart the server.
+
+The fixed version starts with an empty cache and never reads or migrates old
+shared entries. It does not automatically delete the old directory.
+
+Cache files remain sensitive: Hishel stores account response data and request
+headers, including Authorization. Namespace directories have owner-only
+permissions on POSIX systems, but the cache is not encrypted. Namespace
+isolation prevents accidental cross-credential reuse; it does not protect
+against someone who can read the cache files. Restrict access to the cache
+directory, any shared volumes, and backups.
+
 #### Using MCP Inspector
 
 The `mcp[cli]` dependency in this project includes the `mcp dev` command,
