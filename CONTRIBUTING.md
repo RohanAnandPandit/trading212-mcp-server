@@ -88,6 +88,44 @@ The cache regression suite uses synthetic credentials, temporary directories,
 and a mocked HTTP transport. It does not require a Trading212 account or make
 live Trading212 requests. GitHub Actions runs it on Python 3.11.
 
+## Cache isolation and synchronization
+
+Keep cache construction in `src/utils/hishel_config.py`. Hishel 0.1.2's default
+cache key does not include Authorization; header-based separation depends on
+the upstream response declaring `Vary: Authorization`. We cannot rely on that
+header. Without our namespace isolation, account B can request the same URL
+as account A and receive A's cached balance without contacting the API.
+
+The namespace hashes a JSON pair containing the API base URL and the actual
+Authorization header. Using the full header covers both legacy API keys and
+Basic key/secret credentials, including secret rotation. The base URL separates
+environments and API versions. The new cache root deliberately excludes old
+shared entries because their filenames cannot identify the owning account.
+
+Clients for the same namespace must reuse a `FileStorage` instance within the
+process. Hishel's file lock belongs to that instance, not the directory. Two
+instances pointing at the same directory have independent locks, allowing a
+reader to see incomplete JSON during a write. The registry lock covers lookup
+and creation together; locking only insertion, or using a memoization helper
+that permits concurrent creation, would still allow duplicate instances.
+Hishel's own lock then coordinates file reads and writes after the factory
+returns. Closing a client is safe for other clients with the currently pinned
+Hishel version because `FileStorage.close()` is a no-op; recheck this behavior
+when upgrading the dependency.
+
+The registry uses resolved paths so separate working directories stay separate,
+and weak references so unused storage instances can be reclaimed. Reclaiming
+an instance does not erase its on-disk cache. This is synchronization within a
+process, not an interprocess lock or encrypted storage; see the README for
+deployment and cache-file access guidance.
+
+Preserve both kinds of regression coverage when changing this code: different
+credentials must never reuse responses, and concurrent same-credential clients
+must wait for complete writes. The concurrency test pauses a writer after it
+flushes partial JSON, starts a second client's read, and verifies that the read
+waits until the writer finishes. A separate test starts factory calls together
+to check that they all receive the same storage instance.
+
 ## Code Style
 
 - Follow PEP 8 guidelines

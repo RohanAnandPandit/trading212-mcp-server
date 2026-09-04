@@ -268,6 +268,12 @@ Clients using the same credentials and base URL can reuse cached responses
 across restarts. Construct a new `Trading212Client` when changing credentials;
 do not replace credentials on an existing client's underlying HTTP client.
 
+Within one server process, clients using the same cache directory also share
+the storage instance and its file lock. This prevents a client from reading a
+partially written response while another client is saving it. These locks do
+not coordinate separate processes: run simultaneous server processes in
+separate working directories so they do not write to the same cache directory.
+
 This fixes a shared-cache issue where clients using different credentials
 could receive another account's cached response. To upgrade:
 
