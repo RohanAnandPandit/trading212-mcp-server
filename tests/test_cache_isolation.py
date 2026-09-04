@@ -1,13 +1,15 @@
 import os
 import stat
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from contextlib import ExitStack
+from threading import Barrier, Event
 
 import hishel
 import httpx
 import pytest
 
 from utils.client import Trading212Client
-from utils.hishel_config import controller
+from utils.hishel_config import controller, create_storage
 
 
 @pytest.fixture
@@ -93,8 +95,63 @@ def test_identical_credentials_reuse_persistent_cache(clients):
     assert cached.json() == response.json()
     assert cached.extensions["from_cache"] is True
     assert len(calls) == 1
-    assert storages[0] is not storages[1]
+    assert storages[0] is storages[1]
     assert storages[0]._base_path == storages[1]._base_path
+
+
+def test_concurrent_clients_wait_for_complete_cache_writes(clients, monkeypatch):
+    create, calls, storages, _ = clients
+    first, second = create(), create()
+    write_started, release_write, read_started = Event(), Event(), Event()
+
+    def paused_write(path, data, is_binary=None):
+        # Pause after flushing partial JSON, while Hishel holds its write lock.
+        with open(path, "w", encoding="utf-8") as output:
+            output.write("{")
+            output.flush()
+            write_started.set()
+            assert release_write.wait(5)
+            output.seek(0)
+            output.write(data)
+            output.truncate()
+
+    monkeypatch.setattr(storages[0]._file_manager, "write_to", paused_write)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        writer = pool.submit(first.get, "/equity/account/summary")
+        try:
+            assert write_started.wait(5)
+            original_retrieve = storages[1].retrieve
+
+            def observed_retrieve(key):
+                read_started.set()
+                return original_retrieve(key)
+
+            monkeypatch.setattr(storages[1], "retrieve", observed_retrieve)
+            reader = pool.submit(second.get, "/equity/account/summary")
+            assert read_started.wait(5)
+            with pytest.raises(TimeoutError):
+                reader.result(timeout=0.1)
+        finally:
+            release_write.set()
+        written = writer.result(timeout=5)
+        cached = reader.result(timeout=5)
+
+    assert cached.json() == written.json()
+    assert cached.extensions["from_cache"] is True
+    assert len(calls) == 1
+
+
+def test_concurrent_storage_creation_shares_one_instance(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    barrier = Barrier(8)
+
+    def create(_):
+        barrier.wait(timeout=5)
+        return create_storage("https://demo.trading212.com/api/v0", "test-key")
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        storages = list(pool.map(create, range(8)))
+    assert all(storage is storages[0] for storage in storages)
 
 
 def test_environments_and_versions_have_separate_namespaces(clients):
