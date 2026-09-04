@@ -6,7 +6,7 @@ import hishel
 import httpx
 
 from models import *
-from utils.hishel_config import controller, storage
+from utils.hishel_config import controller, create_storage
 
 
 class Trading212Client:
@@ -29,7 +29,7 @@ class Trading212Client:
 
         self.client = hishel.CacheClient(
             base_url=base_url,
-            storage=storage,
+            storage=create_storage(base_url, headers["Authorization"]),
             controller=controller,
             headers=headers,
         )
