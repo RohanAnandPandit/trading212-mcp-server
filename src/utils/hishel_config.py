@@ -24,13 +24,8 @@ _storages: WeakValueDictionary[Path, hishel.FileStorage] = WeakValueDictionary()
 _storages_lock = Lock()
 
 
-def create_storage(base_url: str, authorization: str) -> hishel.FileStorage:
-    """Return this process's shared storage for the resolved account namespace.
-
-    Pass the actual outgoing Authorization value, including Basic credentials,
-    so a secret change also changes the namespace. This does not coordinate
-    concurrent file access between separate server processes.
-    """
+def _namespace_path(base_url: str, authorization: str) -> Path:
+    """Calculate the account's cache path without creating files or storage."""
     # JSON preserves field boundaries; hashing keeps raw credentials out of
     # directory names. The digest is an identifier, not encryption of the cache.
     identity = json.dumps(
@@ -39,7 +34,17 @@ def create_storage(base_url: str, authorization: str) -> hishel.FileStorage:
     fingerprint = hashlib.sha256(identity).hexdigest()
     # A new root prevents reuse of entries from the legacy shared cache. Resolve
     # the path so different working directories cannot share a registry entry.
-    base_path = (Path(".cache/trading212-v2") / fingerprint).resolve()
+    return (Path(".cache/trading212-v2") / fingerprint).resolve()
+
+
+def create_storage(base_url: str, authorization: str) -> hishel.FileStorage:
+    """Return this process's shared storage for the resolved account namespace.
+
+    Pass the actual outgoing Authorization value, including Basic credentials,
+    so a secret change also changes the namespace. This does not coordinate
+    concurrent file access between separate server processes.
+    """
+    base_path = _namespace_path(base_url, authorization)
     # Hishel's file locks belong to each storage instance. Reuse that instance
     # within this process so clients cannot read each other's partial writes.
     with _storages_lock:
