@@ -61,6 +61,7 @@ def create_server(
     client_factory: Callable[[Settings], Trading212Client] = Trading212Client,
 ) -> TradingServer:
     active: Trading212Client | None = None
+    active_lifespans = 0
 
     def current_client() -> Trading212Client:
         if active is None:
@@ -71,16 +72,22 @@ def create_server(
     async def lifespan(
         server: MCPServer[Trading212Client],
     ) -> AsyncIterator[Trading212Client]:
-        nonlocal active
-        client = client_factory(
-            settings if settings is not None else Settings.from_env()
-        )
-        active = client
+        nonlocal active, active_lifespans
+        # SSE opens a lifespan per connection. Keep the shared client alive until
+        # the last connection exits; streamable HTTP uses one application lifespan.
+        if active is None:
+            active = client_factory(
+                settings if settings is not None else Settings.from_env()
+            )
+        client = active
+        active_lifespans += 1
         try:
             yield client
         finally:
-            client.close()
-            active = None
+            active_lifespans -= 1
+            if active_lifespans == 0:
+                active = None
+                client.close()
 
     server = TradingServer("Trading212", version=__version__, lifespan=lifespan)
     tools.register(server, current_client)

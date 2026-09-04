@@ -119,6 +119,41 @@ def test_expiration_and_no_sliding_ttl(settings):
     assert len(calls) == 2
 
 
+@pytest.mark.parametrize(
+    ("ttl_setting", "path"),
+    [
+        ("account_ttl", PATH),
+        ("history_ttl", "/equity/history/orders"),
+        ("metadata_ttl", "/equity/metadata/instruments"),
+    ],
+)
+@pytest.mark.parametrize("restart", [False, True])
+def test_reduced_ttl_applies_to_persisted_entries(
+    settings, monkeypatch, ttl_setting, path, restart
+):
+    import time
+
+    calls = []
+    long_lived = settings.model_copy(update={ttl_setting: 3600})
+    short_lived = settings.model_copy(update={ttl_setting: 15})
+    with client(long_lived, calls) as original:
+        assert original._make_request("GET", path) == {"count": 1}
+        if restart:
+            original.close()
+        future = time.time() + 60
+        monkeypatch.setattr("trading212_mcp.cache.time.time", lambda: future)
+        events = []
+        token = observations.set(events)
+        try:
+            with client(short_lived, calls) as current:
+                assert current._make_request("GET", path) == {"count": 2}
+        finally:
+            observations.reset(token)
+        assert events[0]["cacheHit"] is False
+        assert events[0]["ttlSeconds"] == 15
+    assert len(calls) == 2
+
+
 @pytest.mark.parametrize("method", ["POST", "DELETE"])
 def test_mutations_invalidate_private_but_not_metadata(settings, method):
     calls = []

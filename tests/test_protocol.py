@@ -14,6 +14,34 @@ from trading212_mcp.server import create_server
 BASELINE = json.loads((Path(__file__).parent / "fixtures/mcp_v1.json").read_text())
 
 
+def test_overlapping_sessions_keep_shared_client_alive(settings):
+    clients = []
+
+    def factory(settings):
+        client = Trading212Client(settings, transport=httpx.MockTransport(api_response))
+        clients.append(client)
+        return client
+
+    server = create_server(settings, factory)
+
+    async def run():
+        async with Client(server) as first:
+            async with Client(server) as second:
+                assert not (await first.call_tool("fetch_all_orders", {})).is_error
+                assert not (await second.call_tool("fetch_all_orders", {})).is_error
+                assert len(clients) == 1
+            assert not clients[0].cache.closed
+            assert not (await first.call_tool("fetch_all_orders", {})).is_error
+            assert (await first.read_resource("trading212://orders")).contents
+        assert clients[0].cache.closed
+        async with Client(server) as restarted:
+            assert not (await restarted.call_tool("fetch_all_orders", {})).is_error
+            assert len(clients) == 2
+        assert clients[1].cache.closed
+
+    asyncio.run(run())
+
+
 def api_response(req):
     path = req.url.path
     if path.endswith("/summary"):

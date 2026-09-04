@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import sqlite3
+import time
 from collections.abc import Callable
 from contextlib import closing
 from contextvars import ContextVar
@@ -56,9 +57,17 @@ class NamespacedStorage(SyncSqliteStorage):
     """Generation keys make pre-mutation private entries unreachable."""
 
     generation: str = "0"
+    ttl: float = 0
 
     def get_entries(self, key: str) -> list[Entry]:
-        return super().get_entries(f"{self.generation}:{key}")
+        # Hishel checks the stored TTL. Also enforce the current policy when a
+        # restart or another client lowers the allowed age of persisted entries.
+        now = time.time()
+        return [
+            entry
+            for entry in super().get_entries(f"{self.generation}:{key}")
+            if now - entry.meta.created_at < self.ttl
+        ]
 
     def create_entry(
         self,
@@ -128,6 +137,7 @@ class ResponseCache:
                         "SELECT value FROM generation WHERE id=1"
                     ).fetchone()
                     self.storage.generation = "metadata" if metadata else str(row[0])
+                    self.storage.ttl = ttl
                 try:
                     if method == "GET" and ttl > 0:
                         proxy = SyncCacheProxy(
