@@ -33,7 +33,7 @@ supported `src/server.py` launch path remains.
 
 ## Verification
 
-- 88 offline tests pass; Python 3.11 coverage is 96% including branch coverage.
+- 95 offline tests pass; Python 3.11 coverage is 96% including branch coverage.
 - Supported interpreter matrix: Python 3.11, 3.12, 3.13, and stable 3.14.
 - Ruff checks, formatting checks, strict mypy, and whitespace checks pass.
 - Source distribution and wheel build successfully; an installed wheel outside
