@@ -206,8 +206,30 @@ Docker images and replace any older images that may have included local files.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture and verification commands,
 [SECURITY.md](.github/SECURITY.md) for private reporting, and
 [the modernization validation report](docs/modernization.md) for checked behavior.
-`docs/api.json` is the checked-in upstream schema snapshot, not a guarantee that
-the live API has not changed.
+
+### Keeping the Trading 212 schema in sync
+
+Trading 212's live
+[OpenAPI description](https://docs.trading212.com/_bundle/api.yaml) is the
+authority. `docs/api.json` is the reviewable checked-in snapshot. Before making
+API-facing changes or preparing a release, check it without account credentials:
+
+```sh
+uv run --with PyYAML python .agents/skills/trading212-api-sync/scripts/sync_api_schema.py --check
+```
+
+If the command reports drift, refresh the snapshot:
+
+```sh
+uv run --with PyYAML python .agents/skills/trading212-api-sync/scripts/sync_api_schema.py --update
+```
+
+Review the resulting diff rather than treating regeneration as sufficient.
+Update endpoints, parameters, request and response models, enums, deprecations,
+tests, and documentation where relevant, then run the full verification suite.
+The repository-local `trading212-api-sync` agent skill contains the complete
+workflow. The schema check only downloads public documentation; it must never
+make authenticated account requests or trading mutations.
 
 This project is independently maintained and is not affiliated with or endorsed by Trading 212.
 Consult the provider's current documentation and terms. Licensed under [MIT](LICENSE).

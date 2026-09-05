@@ -1,0 +1,4 @@
+interface:
+  display_name: "Trading 212 API Sync"
+  short_description: "Audit code against Trading 212 live schema"
+  default_prompt: "Use $trading212-api-sync to verify and update this repository against the current Trading 212 public API."
