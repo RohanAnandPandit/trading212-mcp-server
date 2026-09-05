@@ -136,9 +136,10 @@ All previous tool names are retained:
 | History | `fetch_historical_order_data`, `fetch_paid_out_dividends`, `fetch_transaction_list`, `fetch_exports_list`, `request_csv_export` |
 
 Positive order quantities buy; negative quantities sell. Zero/non-finite
-quantities, non-positive prices, and empty tickers are rejected. Updating a pie
-requires a non-empty name. Export dates must include a timezone and be ordered.
-Pies are deprecated upstream, but their tools are retained.
+quantities, non-positive prices, and empty tickers are rejected. Pie updates may
+include any documented field independently; `name` is optional. Export dates
+must include a timezone and be ordered. Pies are deprecated upstream, but their
+tools are retained.
 
 `fetch_account_info` aliases `fetch_account_summary`. The older position tools
 remain compatibility aliases. Historical tools return a single page with

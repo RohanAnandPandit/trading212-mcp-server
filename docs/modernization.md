@@ -45,9 +45,8 @@ supported `src/server.py` launch path remains.
   initial audit found eight advisories across Click, Pygments, and
   python-multipart; their locked upgrades resolved those findings. No advisory
   suppressions or allowlists were added.
-- CI adds Windows and Linux test jobs and repeats macOS checks. Hosted CI has not
-  been executed from this local checkout; local interpreter tests ran on macOS,
-  and the Docker smoke check ran in Linux.
+- Hosted CI passes on Linux with Python 3.11–3.14 and on Windows and macOS with
+  Python 3.11; the quality and Linux container jobs also pass.
 
 The audit is a point-in-time dependency database check, not a claim that all
 possible security vulnerabilities have been eliminated. CI produces an updated
