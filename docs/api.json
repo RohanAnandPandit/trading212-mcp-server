@@ -418,7 +418,9 @@
               "WITHDRAW",
               "DEPOSIT",
               "FEE",
-              "TRANSFER"
+              "TRANSFER",
+              "INTEREST_ON_FREE_CASH",
+              "LENDING_INTEREST"
             ],
             "type": "string"
           }
@@ -571,7 +573,7 @@
             "type": "number"
           },
           "filledValue": {
-            "description": "The total monetary value of the executed portion of the order. Applicable  to orders placed by value.Note: Placing orders by value is not currently supported via the API but can be done through other Trading 212 platforms.",
+            "description": "The total monetary value of the executed portion of the order. Applicable to orders placed by value.Note: Placing orders by value is not currently supported via the API but can be done through other Trading 212 platforms.",
             "type": "number"
           },
           "id": {
@@ -587,7 +589,8 @@
               "ANDROID",
               "WEB",
               "SYSTEM",
-              "AUTOINVEST"
+              "AUTOINVEST",
+              "INSTRUMENT_AUTOINVEST"
             ],
             "type": "string"
           },
@@ -789,7 +792,7 @@
             "type": "number"
           },
           "fxImpact": {
-            "description": "The positive or negative impact on the position's value due to currency rate changes.",
+            "description": "The positive or negative impact on the position's value due to currency rate changes. Only applies to positions with instrument currency that differs from the accounts.",
             "type": "number"
           },
           "totalCost": {
@@ -1064,7 +1067,7 @@
     }
   },
   "info": {
-    "description": "Welcome to the official API reference for the Trading 212 Public API! This\nguide provides all the information you need to start building your own\ntrading applications and integrations.\n\n\n---\n\n# General Information\n\nThis API is currently in **beta** and is under active development. We're\ncontinuously adding new features and improvements, and we welcome your\nfeedback.\n\n\n### Only for Invest and Stocks ISA\n\nThe API described here is enabled and usable only for **Invest and Stocks ISA** account types.\n\n\n\n### API Environments\n\nWe provide two distinct environments for development and trading:\n\n* **Paper Trading (Demo):** `https://demo.trading212.com/api/v0`\n\n* **Live Trading (Real Money):** `https://live.trading212.com/api/v0`\n\nYou can test your applications extensively in the paper trading environment\nwithout risking real funds before moving to live trading.\n\n### ⚠️ API Limitations\n\nPlease be aware of the following limitations for any order placement:\n\n* **Supported account types:**  The Trading 212 Public API is enabled and\n  usable only for **Invest and Stocks ISA** account types.\n\n* **Order execution:** Orders can be executed only in the **primary account\n  currency**\n\n* **Multi-currency:** Multi-currency accounts are not currently supported\n  through the API. Meaning your account, position and result values in the\n  responses will be in the primary account currency.\n\n### Key Concepts\n\n* **Authentication:** Every request to the API must be authenticated using a\n  secure key pair. See the **Authentication** section below for details.\n\n* **Rate Limiting:** All API calls are subject to rate limits to ensure fair\n  usage and stability. See the **Rate Limiting** section for a full\n  explanation.\n\n* **IP Restrictions:** For enhanced security, you can optionally restrict\n  your API keys to a specific set of IP addresses from within your Trading 212\n  account settings.\n\n* **Selling Orders:** To execute a sell order, you must provide a\n  **negative** value for the `quantity` parameter (e.g., `-10.5`). This is a\n  core convention of the API.\n\n---\n\n## Quickstart\n\nThis simple example shows you how to retrieve your account's cash balance.\n\nFirst, you must generate your API keys from within the Trading 212 app. For\ndetailed instructions, please visit our Help Centre:\n\n* [**How to get your Trading 212 API\n  key**](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key)\n\nOnce you have your **API Key** and **API Secret**, you can make your first\ncall using `cURL`:\n\n```bash\n\n# Step 1: Replace with your actual credentials and Base64-encode them.\n\n# The `-n` is important as it prevents adding a newline character.\n\nCREDENTIALS=$(echo -n \"<YOUR_API_KEY>:<YOUR_API_SECRET>\" | base64)\n\n\n# Step 2: Make the API call to the live environment using the encoded\ncredentials.\n\ncurl -X GET \"https://live.trading212.com/api/v0/equity/account/cash\" \\\n -H \"Authorization: Basic $CREDENTIALS\"\n```\n\n---\n\n# Authentication\n\nThe API uses a secure key pair for authentication on every request. You must\nprovide your **API Key** as the username and your **API Secret** as the\npassword, formatted as an HTTP Basic Authentication header.\n\nThe `Authorization` header is constructed by Base64-encoding your\n`API_KEY:API_SECRET` string and prepending it with `Basic `.\n\n### Building the Authorization Header\n\nHere are examples of how to generate the required value in different\nenvironments.\n\n**Linux or macOS (Terminal)**\n\nYou can use the `echo` and `base64` commands. Remember to use the `-n` flag\nwith `echo` to prevent it from adding a trailing newline, which would\ninvalidate the credential string.\n\n```bash\n\n# This command outputs the required Base64-encoded string for your header.\n\necho -n \"<YOUR_API_KEY>:<YOUR_API_SECRET>\" | base64\n\n```\n\n**Python**\n\nThis simple snippet shows how to generate the full header value.\n\n```python\n\nimport base64\n\n\n# 1. Your credentials\n\napi_key = \"<YOUR_API_KEY>\"\n\napi_secret = \"<YOUR_API_SECRET>\"\n\n\n# 2. Combine them into a single string\n\ncredentials_string = f\"{api_key}:{api_secret}\"\n\n\n# 3. Encode the string to bytes, then Base64 encode it\n\nencoded_credentials =\nbase64.b64encode(credentials_string.encode('utf-8')).decode('utf-8')\n\n\n# 4. The final header value\n\nauth_header = f\"Basic {encoded_credentials}\"\n\n\nprint(auth_header)\n\n```\n\n---\n\n# Rate Limiting\n\nTo ensure high performance and fair access for all users, all API endpoints\nare subject to rate limiting.\n\n\n> **IMPORTANT NOTE:** All rate limits are applied on a per-account basis,\n> regardless of which API key is used or which IP address the request\n> originates from.\n\n\nSpecific rate limits are detailed in the reference for each endpoint.\n\n### Response Headers\n\nEvery API response includes the following headers to help you manage your\nrequest frequency and avoid hitting limits.\n\n* `x-ratelimit-limit`: The total number of requests allowed in the current\n  time period.\n\n* `x-ratelimit-period`: The duration of the time period in seconds.\n\n* `x-ratelimit-remaining`: The number of requests you have left in the\n  current period.\n\n* `x-ratelimit-reset`: A Unix timestamp indicating the exact time when the\n  limit will be fully reset.\n\n* `x-ratelimit-used`: The number of requests you have already made in the\n  current period.\n\n### How It Works\n\nThe rate limiter allows for requests to be made in bursts. For example, an\nendpoint with a limit of `50 requests per 1 minute` does **not** strictly\nmean you can only make one request every 1.2 seconds. Instead, you could:\n\n* Make a burst of all 50 requests in the first 5 seconds of a minute. You\n  would then need to wait for the reset time indicated by the\n  `x-ratelimit-reset` header before making more requests.\n\n* Pace your requests evenly, for example, by making one call every 1.2\n  seconds, ensuring you always stay within the limit.\n\n### Function-Specific Limits\n\nIn addition to the general rate limits on HTTP calls, some actions have\ntheir own functional limits. For example, there is a maximum of **50 pending\norders** allowed per ticker, per account.\n\n# Pagination\n\nAll list endpoints in the API that return a collection of items (such as historical orders, dividends, and transactions) use **cursor-based pagination** to handle large data sets.\n\n### Parameters\n\n* **`limit`** (integer): Specifies the maximum number of items to return in a single request.\n  * **Default:** 20\n  * **Maximum:** 50\n* **`cursor`** (string | number): A pointer to a specific item in the dataset. This tells the API where to start the next page of results.\n\n### How to Paginate\n\nThe easiest way to paginate is by using the `nextPagePath` field returned in the response.\n\n1.  Make your initial request to a list endpoint (e.g., `/api/v0/equity/history/orders`) with an optional `limit` parameter. Do not include a `cursor`.\n2.  The API will return a response object. This object will contain a list of `items` and a `nextPagePath` field.\n3.  If the `nextPagePath` field is `null`, you have reached the end of the data, and there are no more pages.\n4.  If `nextPagePath` is not `null`, **use the entire string value of `nextPagePath`** as the path for your next request. This string contains all the necessary parameters (like `limit` and `cursor`) to get the next page.\n5.  Repeat this process until `nextPagePath` is `null`.\n\n### Example\n\nHere is a step-by-step example of fetching all transactions, 2 at a time.\n\n**Request 1: Get the first page**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2\" \\\n     -u \"API_KEY:API_SECRET\"\n```\n**Response 1: Note the nextPagePath**\n```json\n{\n  \"items\": [\n    { \"id\": 987654321, \"ticker\": \"AAPL_US_EQ\", ... },\n    { \"id\": 987654320, \"ticker\": \"MSFT_US_EQ\", ... }\n  ],\n  \"nextPagePath\": \"/api/v0/equity/history/orders?limit=2&cursor=1760346100000\"\n}\n```\n**Request 2: Use the full nextPagePath for the next request**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2&cursor=1760346100000\" \\\n     -u \"API_KEY:API_SECRET\"\n```\n**Response 2: Get the next page (and a new nextPagePath)**\n```json\n{\n  \"items\": [\n    { \"id\": 987654319, \"ticker\": \"AAPL_US_EQ\", ... },\n    { \"id\": 987654320, \"987654318\": \"MSFT_US_EQ\", ... }\n  ],\n  \"nextPagePath\": \"/api/v0/equity/history/orders?limit=2&cursor=1660015723000\"\n}\n```\n**Request 3: Get the final page**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2&cursor=1660015723000\" \\\n     -u \"API_KEY:API_SECRET\"\n```\nResponse 3: nextPagePath is null, indicating the end\n```json\n{\n  \"items\": [\n    { \"id\": 987654317, \"ticker\": \"AMZN_US_EQ\", ... }\n  ],\n  \"nextPagePath\": null\n}\n```\n\n---\n\n# Useful Links\n\nHere are some additional resources that you may find helpful.\n\n* [**Trading 212 API\n  Terms**](https://www.trading212.com/legal-documentation/API-Terms_EN.pdf)\n\n* [**Trading 212 Community Forum**](https://community.trading212.com/) - A\n  great place to ask questions and share what you've built.\n",
+    "description": "Welcome to the official API reference for the Trading 212 Public API! This\nguide provides all the information you need to start building your own\ntrading applications and integrations.\n\n\n---\n\n# General Information\n\nThis API is currently in **beta** and is under active development. We're\ncontinuously adding new features and improvements, and we welcome your\nfeedback.\n\n\n### Only for Invest and Stocks ISA\n\nThe API described here is enabled and usable only for **Invest and Stocks ISA** account types.\n\n\n\n### API Environments\n\nWe provide two distinct environments for development and trading:\n\n* **Paper Trading (Demo):** `https://demo.trading212.com/api/v0`\n\n* **Live Trading (Real Money):** `https://live.trading212.com/api/v0`\n\nYou can test your applications extensively in the paper trading environment\nwithout risking real funds before moving to live trading.\n\n### ⚠️ API Limitations\n\nPlease be aware of the following limitations for any order placement:\n\n* **Supported account types:**  The Trading 212 Public API is enabled and\n  usable only for **Invest and Stocks ISA** account types.\n\n* **Order execution:** Orders can be executed only in the **primary account\n  currency**\n\n* **Multi-currency:** Multi-currency accounts are not currently supported\n  through the API. Meaning your account, position and result values in the\n  responses will be in the primary account currency.\n\n### Key Concepts\n\n* **Authentication:** Every request to the API must be authenticated using a\n  secure key pair. See the **Authentication** section below for details.\n\n* **Rate Limiting:** All API calls are subject to rate limits to ensure fair\n  usage and stability. See the **Rate Limiting** section for a full\n  explanation.\n\n* **IP Restrictions:** For enhanced security, you can optionally restrict\n  your API keys to a specific set of IP addresses from within your Trading 212\n  account settings.\n\n* **Selling Orders:** To execute a sell order, you must provide a\n  **negative** value for the `quantity` parameter (e.g., `-10.5`). This is a\n  core convention of the API.\n\n---\n\n## Quickstart\n\nThis simple example shows you how to retrieve your account summary.\n\nFirst, you must generate your API keys from within the Trading 212 app. For\ndetailed instructions, please visit our Help Centre:\n\n* [**How to get your Trading 212 API\n  key**](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key)\n\nOnce you have your **API Key** and **API Secret**, you can make your first\ncall using `cURL`:\n\n```bash\n\n# Step 1: Replace with your actual credentials and Base64-encode them.\n\n# The `-n` is important as it prevents adding a newline character.\n# `tr -d '\\n'` strips any line wraps added by GNU base64 on Linux.\n\nCREDENTIALS=$(echo -n \"<YOUR_API_KEY>:<YOUR_API_SECRET>\" | base64 | tr -d '\\n')\n\n\n# Step 2: Make the API call to the live environment using the encoded\ncredentials.\n\ncurl -X GET \"https://live.trading212.com/api/v0/equity/account/summary\" \\\n -H \"Authorization: Basic $CREDENTIALS\"\n```\n\n---\n\n# Authentication\n\nThe API uses a secure key pair for authentication on every request. You must\nprovide your **API Key** as the username and your **API Secret** as the\npassword, formatted as an HTTP Basic Authentication header.\n\nThe `Authorization` header is constructed by Base64-encoding your\n`API_KEY:API_SECRET` string and prepending it with `Basic `.\n\n### Building the Authorization Header\n\nHere are examples of how to generate the required value in different\nenvironments.\n\n**Linux or macOS (Terminal)**\n\nYou can use the `echo` and `base64` commands. Remember to use the `-n` flag\nwith `echo` to prevent it from adding a trailing newline, which would\ninvalidate the credential string. On Linux, GNU `base64` wraps output at 76\ncharacters by default — pipe through `tr -d '\\n'` to strip those line breaks.\n\n```bash\n\n# This command outputs the required Base64-encoded string for your header.\n\necho -n \"<YOUR_API_KEY>:<YOUR_API_SECRET>\" | base64 | tr -d '\\n'\n\n```\n\n**Python**\n\nThis simple snippet shows how to generate the full header value.\n\n```python\n\nimport base64\n\n\n# 1. Your credentials\n\napi_key = \"<YOUR_API_KEY>\"\n\napi_secret = \"<YOUR_API_SECRET>\"\n\n\n# 2. Combine them into a single string\n\ncredentials_string = f\"{api_key}:{api_secret}\"\n\n\n# 3. Encode the string to bytes, then Base64 encode it\n\nencoded_credentials =\nbase64.b64encode(credentials_string.encode('utf-8')).decode('utf-8')\n\n\n# 4. The final header value\n\nauth_header = f\"Basic {encoded_credentials}\"\n\n\nprint(auth_header)\n\n```\n\n---\n\n# Rate Limiting\n\nTo ensure high performance and fair access for all users, all API endpoints\nare subject to rate limiting.\n\n\n> **IMPORTANT NOTE:** All rate limits are applied on a per-account basis,\n> regardless of which API key is used or which IP address the request\n> originates from.\n\n\nSpecific rate limits are detailed in the reference for each endpoint.\n\n### Response Headers\n\nEvery API response includes the following headers to help you manage your\nrequest frequency and avoid hitting limits.\n\n* `x-ratelimit-limit`: The total number of requests allowed in the current\n  time period.\n\n* `x-ratelimit-period`: The duration of the time period in seconds.\n\n* `x-ratelimit-remaining`: The number of requests you have left in the\n  current period.\n\n* `x-ratelimit-reset`: A Unix timestamp indicating the exact time when the\n  limit will be fully reset.\n\n* `x-ratelimit-used`: The number of requests you have already made in the\n  current period.\n\n### How It Works\n\nThe rate limiter allows for requests to be made in bursts. For example, an\nendpoint with a limit of `50 requests per 1 minute` does **not** strictly\nmean you can only make one request every 1.2 seconds. Instead, you could:\n\n* Make a burst of all 50 requests in the first 5 seconds of a minute. You\n  would then need to wait for the reset time indicated by the\n  `x-ratelimit-reset` header before making more requests.\n\n* Pace your requests evenly, for example, by making one call every 1.2\n  seconds, ensuring you always stay within the limit.\n\n### Function-Specific Limits\n\nIn addition to the general rate limits on HTTP calls, some actions have\ntheir own functional limits. For example, there is a maximum of **50 pending\norders** allowed per ticker, per account.\n\n# Pagination\n\nAll list endpoints in the API that return a collection of items (such as historical orders, dividends, and transactions) use **cursor-based pagination** to handle large data sets.\n\n### Parameters\n\n* **`limit`** (integer): Specifies the maximum number of items to return in a single request.\n  * **Default:** 20\n  * **Maximum:** 50\n* **`cursor`** (string | number): A pointer to a specific item in the dataset. This tells the API where to start the next page of results.\n\n### How to Paginate\n\nThe easiest way to paginate is by using the `nextPagePath` field returned in the response.\n\n1.  Make your initial request to a list endpoint (e.g., `/api/v0/equity/history/orders`) with an optional `limit` parameter. Do not include a `cursor`.\n2.  The API will return a response object. This object will contain a list of `items` and a `nextPagePath` field.\n3.  If the `nextPagePath` field is `null`, you have reached the end of the data, and there are no more pages.\n4.  If `nextPagePath` is not `null`, **use the entire string value of `nextPagePath`** as the path for your next request. This string contains all the necessary parameters (like `limit` and `cursor`) to get the next page.\n5.  Repeat this process until `nextPagePath` is `null`.\n\n### Example\n\nHere is a step-by-step example of fetching all transactions, 2 at a time.\n\n**Request 1: Get the first page**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2\" \\\n     -u \"API_KEY:API_SECRET\"\n```\n**Response 1: Note the nextPagePath**\n```json\n{\n  \"items\": [\n    { \"id\": 987654321, \"ticker\": \"AAPL_US_EQ\", ... },\n    { \"id\": 987654320, \"ticker\": \"MSFT_US_EQ\", ... }\n  ],\n  \"nextPagePath\": \"/api/v0/equity/history/orders?limit=2&cursor=1760346100000\"\n}\n```\n**Request 2: Use the full nextPagePath for the next request**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2&cursor=1760346100000\" \\\n     -u \"API_KEY:API_SECRET\"\n```\n**Response 2: Get the next page (and a new nextPagePath)**\n```json\n{\n  \"items\": [\n    { \"id\": 987654319, \"ticker\": \"AAPL_US_EQ\", ... },\n    { \"id\": 987654320, \"987654318\": \"MSFT_US_EQ\", ... }\n  ],\n  \"nextPagePath\": \"/api/v0/equity/history/orders?limit=2&cursor=1660015723000\"\n}\n```\n**Request 3: Get the final page**\n```bash\ncurl -X GET \"https://demo.trading212.com/api/v0/equity/history/orders?limit=2&cursor=1660015723000\" \\\n     -u \"API_KEY:API_SECRET\"\n```\nResponse 3: nextPagePath is null, indicating the end\n```json\n{\n  \"items\": [\n    { \"id\": 987654317, \"ticker\": \"AMZN_US_EQ\", ... }\n  ],\n  \"nextPagePath\": null\n}\n```\n\n---\n\n# Useful Links\n\nHere are some additional resources that you may find helpful.\n\n* [**Trading 212 API\n  Terms**](https://www.trading212.com/legal-documentation/API-Terms_EN.pdf)\n\n* [**Trading 212 Community Forum**](https://community.trading212.com/) - A\n  great place to ask questions and share what you've built.\n",
     "title": "Trading 212 Public API",
     "version": "v0"
   },
@@ -1100,8 +1103,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get account summary",
@@ -1176,8 +1183,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get paid out dividends",
@@ -1222,8 +1233,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "List generated reports",
@@ -1273,8 +1288,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Request a CSV report",
@@ -1349,8 +1368,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get historical orders data",
@@ -1425,8 +1448,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get transactions",
@@ -1468,8 +1495,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get exchanges metadata",
@@ -1511,8 +1542,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get all available instruments",
@@ -1554,8 +1589,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get all pending orders",
@@ -1607,8 +1646,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Place a Limit order",
@@ -1660,8 +1703,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Place a Market order",
@@ -1713,8 +1760,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Place a Stop order",
@@ -1766,8 +1817,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Place a StopLimit order",
@@ -1817,8 +1872,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Cancel a pending order",
@@ -1870,8 +1929,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Get a pending order by ID",
@@ -1914,8 +1977,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Fetch all pies",
@@ -1966,8 +2033,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Create pie",
@@ -2014,8 +2085,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Delete pie",
@@ -2064,8 +2139,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Fetch a pie",
@@ -2127,8 +2206,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Update pie",
@@ -2192,8 +2275,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Duplicate pie",
@@ -2246,8 +2333,12 @@
         },
         "security": [
           {
-            "authWithSecretKey": [],
-            "legacyApiKeyHeader": []
+            "authWithSecretKey": [
+
+            ],
+            "legacyApiKeyHeader": [
+
+            ]
           }
         ],
         "summary": "Fetch all open positions",

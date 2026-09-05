@@ -1,13 +1,8 @@
-import os
-from dotenv import load_dotenv, find_dotenv
+"""Compatibility launcher and MCP Inspector entry point."""
 
-from mcp_server import mcp
-from tools import *
-from prompts import *
-from resources import *
+from trading212_mcp.server import create_server, main
 
-load_dotenv(find_dotenv())
+mcp = create_server()
 
-# This is needed if you'd like to connect to a custom client
 if __name__ == "__main__":
-    mcp.run(transport=os.getenv('TRANSPORT', 'stdio'))
+    main()

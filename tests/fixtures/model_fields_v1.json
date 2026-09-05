@@ -1,0 +1,415 @@
+{
+  "Cash": {
+    "fields": [
+      "availableToTrade",
+      "inPies",
+      "reservedForOrders"
+    ],
+    "required": []
+  },
+  "Investments": {
+    "fields": [
+      "currentValue",
+      "realizedProfitLoss",
+      "totalCost",
+      "unrealizedProfitLoss"
+    ],
+    "required": []
+  },
+  "AccountSummary": {
+    "fields": [
+      "cash",
+      "currency",
+      "id",
+      "investments",
+      "totalValue"
+    ],
+    "required": []
+  },
+  "AccountBucketDetailedResponse": {
+    "fields": [
+      "creationDate",
+      "dividendCashAction",
+      "endDate",
+      "goal",
+      "icon",
+      "id",
+      "initialInvestment",
+      "instrumentShares",
+      "name",
+      "publicUrl"
+    ],
+    "required": []
+  },
+  "InstrumentIssue": {
+    "fields": [
+      "name",
+      "severity"
+    ],
+    "required": []
+  },
+  "InvestmentResult": {
+    "fields": [
+      "priceAvgInvestedValue",
+      "priceAvgResult",
+      "priceAvgResultCoef",
+      "priceAvgValue"
+    ],
+    "required": []
+  },
+  "AccountBucketInstrumentResult": {
+    "fields": [
+      "currentShare",
+      "expectedShare",
+      "issues",
+      "ownedQuantity",
+      "result",
+      "ticker"
+    ],
+    "required": []
+  },
+  "AccountBucketInstrumentsDetailedResponse": {
+    "fields": [
+      "instruments",
+      "settings"
+    ],
+    "required": []
+  },
+  "DividendDetails": {
+    "fields": [
+      "gained",
+      "inCash",
+      "reinvested"
+    ],
+    "required": []
+  },
+  "AccountBucketResultResponse": {
+    "fields": [
+      "cash",
+      "dividendDetails",
+      "id",
+      "progress",
+      "result",
+      "status"
+    ],
+    "required": []
+  },
+  "DuplicateBucketRequest": {
+    "fields": [
+      "icon",
+      "name"
+    ],
+    "required": []
+  },
+  "EnqueuedReportResponse": {
+    "fields": [
+      "reportId"
+    ],
+    "required": [
+      "reportId"
+    ]
+  },
+  "TimeEvent": {
+    "fields": [
+      "date",
+      "type"
+    ],
+    "required": [
+      "date",
+      "type"
+    ]
+  },
+  "WorkingSchedule": {
+    "fields": [
+      "id",
+      "timeEvents"
+    ],
+    "required": [
+      "id",
+      "timeEvents"
+    ]
+  },
+  "Exchange": {
+    "fields": [
+      "id",
+      "name",
+      "workingSchedules"
+    ],
+    "required": [
+      "id",
+      "name",
+      "workingSchedules"
+    ]
+  },
+  "Instrument": {
+    "fields": [
+      "currency",
+      "isin",
+      "name",
+      "ticker"
+    ],
+    "required": []
+  },
+  "Tax": {
+    "fields": [
+      "fillId",
+      "name",
+      "quantity",
+      "timeCharged"
+    ],
+    "required": []
+  },
+  "FillWalletImpact": {
+    "fields": [
+      "currency",
+      "fxRate",
+      "netValue",
+      "realisedProfitLoss",
+      "taxes"
+    ],
+    "required": []
+  },
+  "Fill": {
+    "fields": [
+      "filledAt",
+      "id",
+      "price",
+      "quantity",
+      "tradingMethod",
+      "type",
+      "walletImpact"
+    ],
+    "required": []
+  },
+  "LimitRequest": {
+    "fields": [
+      "limitPrice",
+      "quantity",
+      "ticker",
+      "timeValidity"
+    ],
+    "required": [
+      "limitPrice",
+      "quantity",
+      "ticker",
+      "timeValidity"
+    ]
+  },
+  "MarketRequest": {
+    "fields": [
+      "extendedHours",
+      "quantity",
+      "ticker"
+    ],
+    "required": [
+      "quantity",
+      "ticker"
+    ]
+  },
+  "Order": {
+    "fields": [
+      "createdAt",
+      "currency",
+      "extendedHours",
+      "filledQuantity",
+      "filledValue",
+      "id",
+      "initiatedFrom",
+      "instrument",
+      "limitPrice",
+      "quantity",
+      "side",
+      "status",
+      "stopPrice",
+      "strategy",
+      "ticker",
+      "timeInForce",
+      "type",
+      "value"
+    ],
+    "required": []
+  },
+  "HistoricalOrder": {
+    "fields": [
+      "fill",
+      "order"
+    ],
+    "required": []
+  },
+  "HistoryDividendItem": {
+    "fields": [
+      "amount",
+      "amountInEuro",
+      "currency",
+      "grossAmountPerShare",
+      "instrument",
+      "paidOn",
+      "quantity",
+      "reference",
+      "ticker",
+      "tickerCurrency",
+      "type"
+    ],
+    "required": []
+  },
+  "HistoryTransactionItem": {
+    "fields": [
+      "amount",
+      "currency",
+      "dateTime",
+      "reference",
+      "type"
+    ],
+    "required": []
+  },
+  "PaginatedResponseHistoricalOrder": {
+    "fields": [
+      "items",
+      "nextPagePath"
+    ],
+    "required": [
+      "items"
+    ]
+  },
+  "PaginatedResponseHistoryDividendItem": {
+    "fields": [
+      "items",
+      "nextPagePath"
+    ],
+    "required": [
+      "items"
+    ]
+  },
+  "PaginatedResponseHistoryTransactionItem": {
+    "fields": [
+      "items",
+      "nextPagePath"
+    ],
+    "required": [
+      "items"
+    ]
+  },
+  "PieRequest": {
+    "fields": [
+      "dividendCashAction",
+      "endDate",
+      "goal",
+      "icon",
+      "instrumentShares",
+      "name"
+    ],
+    "required": []
+  },
+  "PlaceOrderError": {
+    "fields": [
+      "clarification",
+      "code"
+    ],
+    "required": []
+  },
+  "PositionWalletImpact": {
+    "fields": [
+      "currency",
+      "currentValue",
+      "fxImpact",
+      "totalCost",
+      "unrealizedProfitLoss"
+    ],
+    "required": []
+  },
+  "Position": {
+    "fields": [
+      "averagePricePaid",
+      "createdAt",
+      "currentPrice",
+      "instrument",
+      "quantity",
+      "quantityAvailableForTrading",
+      "quantityInPies",
+      "walletImpact"
+    ],
+    "required": []
+  },
+  "PositionRequest": {
+    "fields": [
+      "ticker"
+    ],
+    "required": [
+      "ticker"
+    ]
+  },
+  "ReportDataIncluded": {
+    "fields": [
+      "includeDividends",
+      "includeInterest",
+      "includeOrders",
+      "includeTransactions"
+    ],
+    "required": []
+  },
+  "PublicReportRequest": {
+    "fields": [
+      "dataIncluded",
+      "timeFrom",
+      "timeTo"
+    ],
+    "required": []
+  },
+  "ReportResponse": {
+    "fields": [
+      "dataIncluded",
+      "downloadLink",
+      "reportId",
+      "status",
+      "timeFrom",
+      "timeTo"
+    ],
+    "required": []
+  },
+  "StopLimitRequest": {
+    "fields": [
+      "limitPrice",
+      "quantity",
+      "stopPrice",
+      "ticker",
+      "timeValidity"
+    ],
+    "required": [
+      "limitPrice",
+      "quantity",
+      "stopPrice",
+      "ticker",
+      "timeValidity"
+    ]
+  },
+  "StopRequest": {
+    "fields": [
+      "quantity",
+      "stopPrice",
+      "ticker",
+      "timeValidity"
+    ],
+    "required": [
+      "quantity",
+      "stopPrice",
+      "ticker",
+      "timeValidity"
+    ]
+  },
+  "TradeableInstrument": {
+    "fields": [
+      "addedOn",
+      "currencyCode",
+      "extendedHours",
+      "isin",
+      "maxOpenQuantity",
+      "minTradeQuantity",
+      "name",
+      "shortName",
+      "ticker",
+      "type",
+      "workingScheduleId"
+    ],
+    "required": []
+  }
+}

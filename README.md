@@ -1,366 +1,236 @@
-# Trading212 MCP Server
+# Trading 212 MCP Server
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
-[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/1cda5fa3-820c-4e9b-a4ad-4d5c447cd7cd)
-[![MCP Badge](https://lobehub.com/badge/mcp/rohananandpandit-trading212-mcp-server?style=plastic)](https://lobehub.com/mcp/rohananandpandit-trading212-mcp-server)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Checks](https://github.com/RohanAnandPandit/trading212-mcp-server/actions/workflows/tests.yml/badge.svg)](https://github.com/RohanAnandPandit/trading212-mcp-server/actions/workflows/tests.yml)
 
-## Overview
+A [Model Context Protocol](https://modelcontextprotocol.io/) server
+for the [Trading 212 public API](https://docs.trading212.com/api). It exposes
+account data, positions, orders, pies, instrument metadata, and account history.
+It also includes an account-currency-aware analysis prompt. It does not provide
+independent market feeds, investment recommendations, or real-time streaming.
 
-The Trading212 MCP server is a [Model Context Protocol](https://modelcontextprotocol.io/introduction) server implementation that provides seamless data connectivity to the Trading212 trading platform enabling advanced interaction capabilities.
+Python 3.11–3.14 is supported. The current source package version is 0.2.0;
+see [the changelog](CHANGELOG.md) for upgrade details. The project uses the
+official MCP Python SDK 2.x.
 
-## Star History
+## Install and run
 
-## Star History
-
-<a href="https://www.star-history.com/?repos=RohanAnandPandit%2Ftrading212-mcp-server&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&theme=dark&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=RohanAnandPandit/trading212-mcp-server&type=date&legend=top-left&sealed_token=3QOUKb5oQUsZZ4of_tPz7dxIMynApv6Zn1uRYBCgXz3zG4GlhB_UX4g-orQewzBVWHmaU0B4J5JbTP13AHTbIZCezneMw6tToLb3Zz-0oueIdLrd62kVKxlEJ3UDREhEnMRmSNZ-8kY61aFu5oX8BqzRczzxHEJ-D6PvbQoFuzvr3LbTt-NJ-mu4HkZX" />
- </picture>
-</a>
-
-## Core Features
-
-### Trading212 API Integration
-- Comprehensive account management:
-  - Account metadata retrieval
-  - Cash balance monitoring
-  - Portfolio management with positions tracking
-- Advanced order handling:
-  - Market orders
-  - Limit orders
-  - Stop-limit orders
-  - Order history and management
-- Portfolio management:
-  - Pies (portfolio buckets) management
-  - Position tracking and search
-  - Historical order data with pagination
-
-### Market Data Access
-- Tradeable instruments information
-- Exchange data with working schedules
-- Historical trading data access
-- Real-time market connectivity
-
-### Financial Analysis Tools
-- Professional financial analysis capabilities
-- Currency-aware data processing
-- Comprehensive trading data analysis
-- Risk management tools
-
-### MCP Protocol Support
-- Full MCP protocol implementation
-- Resource-based API endpoints
-- Tool-based functionality
-- Prompt-based analysis capabilities
-
-## Technical Requirements
-
-- Python >= 3.11 (as specified in .python-version)
-- Pydantic >= 2.11.4
-- Hishel
-
-
-## Tools
-
-### Instruments Metadata
-- `search_exchange`: Fetch exchanges, optionally filtered by name or ID
-- `search_instrument`: Fetch instruments, optionally filtered by ticker or name
-
-### Pies
-- `fetch_pies`: Fetch all pies
-- `duplicate_pie`: Duplicate a pie
-- `create_pie`: Create a new pie
-- `update_pie`: Update a specific pie by ID
-- `delete_pie`: Delete a pie
-
-The Trading 212 `Pies` API is still operational, but the latest public
-`api.json` marks it as deprecated upstream.
-
-### Equity Orders
-- `fetch_all_orders`: Fetch all equity orders
-- `place_limit_order`: Place a limit order
-- `place_market_order`: Place a market order
-- `place_stop_order`: Place a stop order
-- `place_stop_limit_order`: Place a stop-limit order
-- `cancel_order`: Cancel an existing order by ID
-- `fetch_order`: Fetch a specific order by ID
-
-### Account Data
-- `fetch_account_summary`: Fetch account summary
-- `fetch_account_cash`: Fetch account cash balance
-- `fetch_account_info`: Deprecated alias for `fetch_account_summary`
-
-
-### Personal Portfolio
-- `fetch_positions`: Fetch open positions, optionally filtered by ticker
-- `fetch_position_by_ticker`: Fetch a single open position by ticker
-- `fetch_all_open_positions`: Fetch all open positions
-- `fetch_open_position_by_ticker`: Deprecated alias for `fetch_position_by_ticker`
-- `search_specific_position_by_ticker`: Deprecated alias for `fetch_position_by_ticker`
-
-### Historical items
-- `fetch_historical_order_data`: Fetch historical order data with pagination
-- `fetch_paid_out_dividends`: Fetch historical dividend data with pagination
-- `fetch_exports_list`: Lists detailed information about all csv account exports
-- `request_csv_export`: Request a CSV export of the account's orders, dividends and transactions history
-- `fetch_transaction_list`: Fetch superficial information about movements to and from your account
-
-## Resources
-
-### Account Resources
-- `trading212://account/summary`
-- `trading212://account/cash`
-- `trading212://positions`
-- `trading212://positions/{ticker}`
-- `trading212://account/info` deprecated alias for `trading212://account/summary`
-- `trading212://account/portfolio` deprecated alias for `trading212://positions`
-- `trading212://account/positions` compatibility alias for `trading212://positions`
-- `trading212://account/portfolio/{ticker}` deprecated alias for `trading212://positions/{ticker}`
-- `trading212://account/positions/{ticker}` compatibility alias for `trading212://positions/{ticker}`
-
-### Order Resources
-- `trading212://orders`
-- `trading212://orders/{order_id}`
-
-### Portfolio Resources
-- `trading212://pies`
-- `trading212://pies/{pie_id}`
-
-### Market Resources
-- `trading212://instruments`
-- `trading212://exchanges`
-
-### Reports Resources
-- `trading212://history/exports`
-
-## Prompts
-
-### Data Analysis
-- `analyse_trading212_data`: Analyse trading212 data with currency context
-
-The prompt includes:
-- Professional financial expertise
-- Currency-aware analysis
-- Cautious financial advice
-- Dynamic currency information from account data
-
-## Installation
-
-### Clone repository
-```bash
-git clone https://github.com/RohanAnandPandit/trading212-mcp-server.git
-```
-
-### Environment Configuration
-Copy `.env.example` to `.env` and configure:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-### Using Claude Desktop
-
-#### Installing via Docker
-
-- Clone the repository and build a local image to be utilized by your Claude desktop client
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
 
 ```sh
+git clone https://github.com/RohanAnandPandit/trading212-mcp-server.git
 cd trading212-mcp-server
-docker build -t mcp/trading212-mcp-server .
+uv sync --frozen
+cp .env.example .env
+# Edit .env with your own credentials.
+uv run --frozen trading212-mcp-server
 ```
 
-- Change your `claude_desktop_config.json` to match the following, replacing `REPLACE_API_KEY` with your actual key:
-- `TRADING212_API_SECRET` is optional. If supplied, the server will use the
-  newer Basic auth flow from the current public `api.json`; if omitted, it
-  will continue using the legacy API-key-only header that Trading 212 still
-  exposes for compatibility.
+Alternatively, install the package from the checkout using `pip install .`,
+then run `trading212-mcp-server`. For a locked pip installation, use
+`pip install --require-hashes -r requirements.txt` followed by
+`pip install --no-deps .`.
 
- > `claude_desktop_config.json` path
- >
- > - On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
- > - On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+Generate credentials in your Trading 212 account's API settings. Set
+`TRADING212_API_KEY` and, for Basic authentication, `TRADING212_API_SECRET`.
+API-key-only authentication remains available for existing integrations, where
+accepted by Trading 212. Use the demo environment for testing. Live credentials
+and `ENVIRONMENT=live` enable operations on the real account.
+
+The server reads `.env` in its working directory at startup. Existing process
+environment variables take precedence. Imports and tool discovery do not make
+Trading 212 requests. No credentials are required merely to import the server.
+
+### Desktop MCP configuration
+
+Use this configuration in your MCP client's server settings:
 
 ```json
 {
   "mcpServers": {
     "trading212": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "-e",
-        "TRADING212_API_KEY",
-        "mcp/trading212-mcp-server"
-      ],
+      "command": "uv",
+      "args": ["run", "--frozen", "--directory", "/absolute/path/to/trading212-mcp-server", "trading212-mcp-server"],
       "env": {
-        "TRADING212_API_KEY": "REPLACE_API_KEY",
-        "TRADING212_API_SECRET": "OPTIONAL_API_SECRET"
+        "TRADING212_API_KEY": "YOUR_API_KEY",
+        "TRADING212_API_SECRET": "YOUR_API_SECRET",
+        "ENVIRONMENT": "demo"
       }
     }
   }
 }
 ```
 
-### Using uv
+Existing configurations pointing to `src/server.py` continue to work after
+`uv sync --frozen`. The script also remains the Inspector entry point:
+
+```sh
+uv run --frozen mcp dev src/server.py
+```
+
+Inspector requires Node.js and `npx`. Tool calls in Inspector use the configured
+account, including mutations when you invoke those tools.
+
+### Docker
+
+```sh
+docker build -t trading212-mcp-server .
+docker run --rm -i --env-file .env trading212-mcp-server
+```
+
+For a desktop client, pass both credential variables through Docker:
 
 ```json
 {
- "mcpServers": {
-  "trading212": {
-    "command": "uv",
-    "args": [
-        "run",
-        "--directory",
-        "<insert path to repo>",
-        "src/server.py"
-    ],
-    "env": {
-        "TRADING212_API_KEY": "<insert api key>",
-        "TRADING212_API_SECRET": "<optional api secret>"
+  "mcpServers": {
+    "trading212": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "TRADING212_API_KEY", "-e", "TRADING212_API_SECRET", "-e", "ENVIRONMENT", "trading212-mcp-server"],
+      "env": {
+        "TRADING212_API_KEY": "YOUR_API_KEY",
+        "TRADING212_API_SECRET": "YOUR_API_SECRET",
+        "ENVIRONMENT": "demo"
+      }
     }
   }
- }
 }
 ```
 
-### Generating API credentials
-- You can generate the API key from your account settings
-- Visit the [Trading212 help centre](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-How-can-I-generate-an-API-key) for more information
-- If you are using the API key for the "Practice" account in Trading212 then set the `ENVIRONMENT` to `demo` in `.env`
-- Set `ENVIRONMENT` to `live` if you are using the API key for real money
-- `docs/api.json` is the canonical checked-in copy of the latest public Trading 212 API schema used for this project
+The image runs as UID/GID 10001. Credentials, local caches, and development
+files are excluded from the image. The default container cache is ephemeral;
+mount a private directory writable by UID 10001 at `/home/app/.cache` if you
+want persistence. Stdio does not require publishing a port.
 
+## Configuration
 
-### Install packages
+| Variable | Default | Meaning |
+|---|---|---|
+| `TRADING212_API_KEY` | Required | Account API key |
+| `TRADING212_API_SECRET` | Unset | Secret for Basic authentication |
+| `ENVIRONMENT` | `demo` | `demo` or `live` |
+| `TRANSPORT` | `stdio` | `stdio`, `sse`, or `streamable-http` |
+| `TRADING212_CACHE_DIR` | `.cache/trading212-v3` | Cache root; relative to working directory |
+| `TRADING212_ACCOUNT_TTL` | `15` | Account, positions, orders, pies, export-status cache seconds |
+| `TRADING212_HISTORY_TTL` | `300` | History cache seconds |
+| `TRADING212_METADATA_TTL` | `3600` | Instrument and exchange cache seconds |
 
+A TTL of zero disables caching for that category. Values must be finite and
+non-negative. HTTP transports bind only to `127.0.0.1:8000`, with explicit
+Host/Origin restrictions. This is a local single-account server; hosted access,
+public HTTP binding, and multi-user authentication are not provided. Do not
+expose it through a public proxy or tunnel. Tool annotations describe effects;
+they do not implement permissions. Use API permissions and your MCP client's
+approval controls to govern account mutations.
+
+## Tools
+
+All previous tool names are retained:
+
+| Area | Tools |
+|---|---|
+| Account | `fetch_account_summary`, `fetch_account_cash`, `fetch_account_info` |
+| Positions | `fetch_positions`, `fetch_position_by_ticker`, `fetch_all_open_positions`, `fetch_open_position_by_ticker`, `search_specific_position_by_ticker` |
+| Orders | `fetch_all_orders`, `fetch_order`, `place_market_order`, `place_limit_order`, `place_stop_order`, `place_stop_limit_order`, `cancel_order` |
+| Pies | `fetch_pies`, `fetch_a_pie`, `create_pie`, `update_pie`, `duplicate_pie`, `delete_pie` |
+| Metadata | `search_instrument`, `search_exchange` |
+| History | `fetch_historical_order_data`, `fetch_paid_out_dividends`, `fetch_transaction_list`, `fetch_exports_list`, `request_csv_export` |
+
+Positive order quantities buy; negative quantities sell. Zero/non-finite
+quantities, non-positive prices, and empty tickers are rejected. Pie updates may
+include any documented field independently; `name` is optional. Export dates
+must include a timezone and be ordered. Pies are deprecated upstream, but their
+tools are retained.
+
+`fetch_account_info` aliases `fetch_account_summary`. The older position tools
+remain compatibility aliases. Historical tools return a single page with
+`nextPagePath`; pass its cursor and other query parameters to fetch the next
+page. Limits retain their existing clamp to 1–50. Requests do not automatically
+traverse all pages or follow export download links.
+
+## Resources and prompt
+
+Resources retain their existing URIs:
+
+- `trading212://account/summary`, `trading212://account/cash`
+- `trading212://positions`, `trading212://positions/{ticker}`
+- `trading212://orders`, `trading212://orders/{order_id}`
+- `trading212://pies`, `trading212://pies/{pie_id}`
+- `trading212://instruments`, `trading212://exchanges`
+- `trading212://history/exports`
+
+Compatibility URIs: `trading212://account/info`,
+`trading212://account/portfolio`, `trading212://account/positions`,
+`trading212://account/portfolio/{ticker}`, and
+`trading212://account/positions/{ticker}`.
+
+The `analyse_trading212_data` prompt includes account currency when available
+and explains GBX/GBP units. If account retrieval fails, it still returns the
+base prompt and writes a generic diagnostic to stderr.
+
+## Cache and request guarantees
+
+Private data remains cached. Credential/base-URL fingerprints isolate SQLite
+storage across accounts, secret rotations, environments, and API versions.
+Authorization and cookies never enter the cache layer. Cache responses contain
+financial data in plaintext; private filesystem permissions are not encryption.
+Use a private local disk, not a shared or network-mounted cache directory.
+
+Only successful GETs are cached, and expired responses are never served.
+Mutations are never cached or automatically retried. After any attempted
+mutation, private-cache generations advance, including when the outcome is
+uncertain. A cross-process file lock covers reads, writes, body consumption,
+and invalidation, preventing older in-flight reads from repopulating the current
+generation. Different credential namespaces remain independent; external trades
+or writes using another API key may remain invisible until the TTL expires.
+
+MCP tool results and resource contents carry freshness details under
+`_meta["io.github.RohanAnandPandit.trading212/cache"]`: an array of `cacheHit`,
+`retrievedAt` (UTC), and `ttlSeconds` records. Existing data fields remain intact.
+
+Transient GET failures may be retried twice within a 30-second retry budget,
+respecting `Retry-After` and rate-reset headers. Individual HTTP operations have
+explicit timeouts. Waiting for another process's cache lock is bounded separately
+at 30 seconds. A failed mutation can have an unknown outcome: check the account
+before deciding whether to issue it again.
+
+### Upgrading from 0.1.x
+
+Stop older server processes, update the checkout, and run `uv sync --frozen`.
+The new server never reads or migrates `.cache/hishel` or `.cache/trading212-v2`.
+Those directories may contain private responses and Authorization headers.
+After confirming the paths belong to this application, explicitly remove old
+cache directories yourself. The upgrade does not delete user data. Rebuild
+Docker images and replace any older images that may have included local files.
+
+## Development and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture and verification commands,
+[SECURITY.md](.github/SECURITY.md) for private reporting, and
+[the modernization validation report](docs/modernization.md) for checked behavior.
+
+### Keeping the Trading 212 schema in sync
+
+Trading 212's live
+[OpenAPI description](https://docs.trading212.com/_bundle/api.yaml) is the
+authority. `docs/api.json` is the reviewable checked-in snapshot. Before making
+API-facing changes or preparing a release, check it without account credentials:
+
+```sh
+uv run --with PyYAML python .agents/skills/trading212-api-sync/scripts/sync_api_schema.py --check
 ```
-uv install
+
+If the command reports drift, refresh the snapshot:
+
+```sh
+uv run --with PyYAML python .agents/skills/trading212-api-sync/scripts/sync_api_schema.py --update
 ```
 
-or 
+Review the resulting diff rather than treating regeneration as sufficient.
+Update endpoints, parameters, request and response models, enums, deprecations,
+tests, and documentation where relevant, then run the full verification suite.
+The repository-local `trading212-api-sync` agent skill contains the complete
+workflow. The schema check only downloads public documentation; it must never
+make authenticated account requests or trading mutations.
 
-```
-pip install -r requirements.txt
-```
-
-#### Running
-
-After connecting Claude client with the MCP tool via json file and installing the packages, Claude should see the server's mcp tools:
-
-You can run the server yourself via:
-In trading212-mcp-server repo: 
-```
-uv run src/server.py
-```
-
-#### Response caching and upgrading
-
-Successful GET responses use a persistent cache with a 300-second storage TTL
-and the existing stale-response fallback. POST and DELETE requests are not
-cached. Each combination of credentials and API base URL has a separate
-directory under `.cache/trading212-v2/`, relative to the server's working
-directory. The directory name is a SHA-256 fingerprint of the full
-Authorization value and base URL; it does not expose raw credentials.
-Clients using the same credentials and base URL can reuse cached responses
-across restarts. Construct a new `Trading212Client` when changing credentials;
-do not replace credentials on an existing client's underlying HTTP client.
-
-Within one server process, clients using the same cache directory also share
-the storage instance and its file lock. This prevents a client from reading a
-partially written response while another client is saving it. These locks do
-not coordinate separate processes: run simultaneous server processes in
-separate working directories so they do not write to the same cache directory.
-
-This fixes a shared-cache issue where clients using different credentials
-could receive another account's cached response. To upgrade:
-
-1. Stop all old server processes using the cache, including other sessions
-   sharing the same working directory or cache volume.
-2. Remove the old application's `.cache/hishel/` directory from that working
-   directory or volume. Confirm the location before deleting it.
-3. Install the fixed version and restart the server.
-
-The fixed version starts with an empty cache and never reads or migrates old
-shared entries. It does not automatically delete the old directory.
-
-Cache files remain sensitive: Hishel stores account response data and request
-headers, including Authorization. Namespace directories have owner-only
-permissions on POSIX systems, but the cache is not encrypted. Namespace
-isolation prevents accidental cross-credential reuse; it does not protect
-against someone who can read the cache files. Restrict access to the cache
-directory, any shared volumes, and backups.
-
-#### Using MCP Inspector
-
-The `mcp[cli]` dependency in this project includes the `mcp dev` command,
-which starts your server and launches the MCP Inspector via
-`@modelcontextprotocol/inspector`.
-
-Prerequisites:
-- Node.js and `npx` installed locally
-- Project dependencies installed with `uv` or `pip`
-- `TRADING212_API_KEY` configured in `.env`
-- Optional: `TRADING212_API_SECRET` if you want to test the newer Basic auth flow
-
-From the repository root, run:
-
-```bash
-uv run mcp dev src/server.py
-```
-
-If you are using the repo's virtual environment directly, this works too:
-
-```bash
-./.venv/bin/mcp dev src/server.py
-```
-
-The inspector command will:
-- start the Trading 212 MCP server using this repo's Python environment
-- open or print the MCP Inspector session details
-- let you call tools and inspect resources interactively before wiring the server into a desktop client
-
-If the inspector fails to start, the most common cause is that `npx` is not
-available on your `PATH`. Installing Node.js usually resolves that.
-
-### Using Python
-
-```json
-{
- "mcpServers": {
-  "trading212": {
-    "command": "<insert path to python>",
-    "args": [
-        "<insert path to repo>/src/server.py"
-    ]
-  }
- }
-}
-```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, please:
-- Open an issue in the GitHub repository
-
-## Documentation
-
-For the Trading212 API documentation, view the [Public API docs](https://docs.trading212.com/api).
-
-
-## Legal Notice
-
-This is an unofficial implementation of the Trading212 MCP protocol. Always consult official Trading212 documentation and terms of service before using this software.
-
-## Credits
-
-- Project maintained by [Rohan Pandit](https://github.com/RohanAnandPandit)
-
-## Contributing
-- Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to contribute to this project.
+This project is independently maintained and is not affiliated with or endorsed by Trading 212.
+Consult the provider's current documentation and terms. Licensed under [MIT](LICENSE).

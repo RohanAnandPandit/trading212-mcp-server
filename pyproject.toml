@@ -1,20 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.32,<2"]
+build-backend = "hatchling.build"
+
 [project]
 name = "trading212-mcp-server"
-version = "0.1.0"
+version = "0.2.0"
 description = "MCP server for the Trading 212 public API"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
-    "hishel==0.1.2",
-    "httpx>=0.28.1",
-    "mcp[cli]>=1.8.0",
-    "pydantic>=2.11.4",
-    "python-dotenv>=1.1.0",
+    "filelock>=3.32.5,<4",
+    "hishel>=1.3.1,<1.4",
+    "httpx>=0.28.1,<0.29",
+    "mcp>=2.1.1,<2.2",
+    "pydantic>=2.13.5,<2.14",
+    "python-dotenv>=1.2.3,<2",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
 
+[project.urls]
+Repository = "https://github.com/RohanAnandPandit/trading212-mcp-server"
+Issues = "https://github.com/RohanAnandPandit/trading212-mcp-server/issues"
+
+[project.scripts]
+trading212-mcp-server = "trading212_mcp.server:main"
+
 [dependency-groups]
-dev = ["pytest>=8,<9"]
+dev = [
+    "mcp[cli]>=2.1.1,<2.2",
+    "pytest>=9.1.1,<10",
+    "pytest-cov>=7.1,<8",
+    "ruff>=0.16.6,<0.17",
+    "mypy>=2.3.1,<3",
+    "pip-audit>=2.10.1,<3",
+    "build>=1.6,<2",
+    "hatchling>=1.32,<2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trading212_mcp"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+addopts = "--strict-markers"
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S603", "S607"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/trading212_mcp"]
+strict = true
+
+[tool.coverage.run]
+source = ["trading212_mcp"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true

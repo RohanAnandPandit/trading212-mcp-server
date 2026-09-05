@@ -1,21 +1,74 @@
-name: Tests
-
+name: Quality and security
 on:
   push:
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
-  offline-tests:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12', '3.13', '3.14']
+        os: [ubuntu-latest]
+        include:
+          - {python: '3.11', os: windows-latest}
+          - {python: '3.11', os: macos-latest}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.12.9'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen --python ${{ matrix.python }}
+      - run: uv run --frozen --python ${{ matrix.python }} pytest --cov --cov-report=term-missing --cov-report=xml
+      - run: uv build --no-build-isolation
+      - name: Verify installed wheel outside checkout
+        shell: bash
+        run: |
+          uv venv --python ${{ matrix.python }} .wheel-smoke
+          uv pip install --python .wheel-smoke dist/*.whl
+          if [ "$RUNNER_OS" = Windows ]; then
+            .wheel-smoke/Scripts/python.exe tests/package_smoke.py
+          else
+            .wheel-smoke/bin/python tests/package_smoke.py
+          fi
+  quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
         with:
-          python-version: "3.11"
-      - name: Install locked dependencies
-        run: uv sync --frozen --python 3.11
-      - name: Run offline regression tests
-        run: uv run --frozen pytest -q
+          version: '0.12.9'
+          python-version: '3.11'
+      - run: uv sync --frozen
+      - run: uv run --frozen ruff check .
+      - run: uv run --frozen ruff format --check .
+      - run: uv run --frozen mypy
+      - name: Check requirements export
+        run: |
+          uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
+          git diff --exit-code -- requirements.txt
+      - run: uv run --frozen pip-audit --local --format=json --output=audit.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: dependency-audit
+          path: audit.json
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.12.9'
+          python-version: '3.11'
+      - run: uv sync --frozen
+      - name: Build with synthetic secrets present
+        run: |
+          printf 'SYNTHETIC_DOCKER_SECRET=must-not-ship\n' > .env.docker-test
+          mkdir -p .cache
+          printf 'synthetic-private-cache\n' > .cache/docker-test
+          docker build -t trading212-test .
+      - run: uv run --frozen python tests/package_smoke.py --docker trading212-test

@@ -1,0 +1,825 @@
+{
+  "tools": [
+    {
+      "name": "search_instrument",
+      "description": "\n    Fetch instruments, optionally filtered by ticker or name.\n\n    Args:\n        search_term: Search term to filter instruments by ticker or name\n        (case-insensitive)\n\n    Returns:\n        List of matching TradeableInstrument objects, or all instruments if no\n        search term is provided\n    ",
+      "inputSchema": {
+        "properties": {
+          "search_term": {
+            "default": null,
+            "title": "Search Term",
+            "type": "string"
+          }
+        },
+        "title": "search_instrumentArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "search_exchange",
+      "description": "\n    Fetch exchanges, optionally filtered by name or ID.\n\n    Args:\n        search_term: Optional search term to filter exchanges by name or ID\n        (case-insensitive)\n\n    Returns:\n        List of matching Exchange objects, or all exchanges if no search term\n        is provided\n    ",
+      "inputSchema": {
+        "properties": {
+          "search_term": {
+            "default": null,
+            "title": "Search Term",
+            "type": "string"
+          }
+        },
+        "title": "search_exchangeArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_pies",
+      "description": "Fetch all pies.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_piesArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "create_pie",
+      "description": "\n    Create a new pie with the specified parameters.\n\n    Args:\n        name: Name of the pie\n        instrument_shares: Dictionary mapping instrument tickers to their\n        weights in the pie\n            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})\n        dividend_cash_action: How dividends are handled. Defaults to REINVEST.\n            Possible values: REINVEST, TO_ACCOUNT_CASH\n        end_date: Optional end date for the pie in ISO 8601 format\n            (e.g., '2024-12-31T23:59:59Z')\n        goal: Total desired value of the pie in account currency\n        icon: Optional icon identifier for the pie\n\n    Returns:\n        AccountBucketInstrumentsDetailedResponse: Details of the created pie\n    ",
+      "inputSchema": {
+        "$defs": {
+          "DividendCashActionEnum": {
+            "enum": [
+              "REINVEST",
+              "TO_ACCOUNT_CASH"
+            ],
+            "title": "DividendCashActionEnum",
+            "type": "string"
+          }
+        },
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "instrument_shares": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Instrument Shares",
+            "type": "object"
+          },
+          "dividend_cash_action": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/DividendCashActionEnum"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Date"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "name",
+          "instrument_shares"
+        ],
+        "title": "create_pieArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "delete_pie",
+      "description": "Delete a pie.",
+      "inputSchema": {
+        "properties": {
+          "pie_id": {
+            "title": "Pie Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pie_id"
+        ],
+        "title": "delete_pieArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_a_pie",
+      "description": "Fetch a specific pie by ID.",
+      "inputSchema": {
+        "properties": {
+          "pie_id": {
+            "title": "Pie Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pie_id"
+        ],
+        "title": "fetch_a_pieArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "update_pie",
+      "description": "\n    Update an existing pie with new parameters. The pie must be renamed when\n    updating it.\n\n    Args:\n        pie_id: ID of the pie to update\n        name: New name for the pie. Required when updating a pie.\n        instrument_shares: Dictionary mapping instrument tickers to their new\n        weights in the pie\n            (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})\n        dividend_cash_action: How dividends should be handled.\n            Possible values: REINVEST, TO_ACCOUNT_CASH\n        end_date: New end date for the pie in ISO 8601 format\n            (e.g., '2024-12-31T23:59:59Z')\n        goal: New total desired value of the pie in account currency\n        icon: New icon identifier for the pie\n\n    Returns:\n        AccountBucketInstrumentsDetailedResponse: Updated details of the pie\n    ",
+      "inputSchema": {
+        "$defs": {
+          "DividendCashActionEnum": {
+            "enum": [
+              "REINVEST",
+              "TO_ACCOUNT_CASH"
+            ],
+            "title": "DividendCashActionEnum",
+            "type": "string"
+          }
+        },
+        "properties": {
+          "pie_id": {
+            "title": "Pie Id",
+            "type": "integer"
+          },
+          "name": {
+            "default": null,
+            "title": "Name",
+            "type": "string"
+          },
+          "instrument_shares": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "default": null,
+            "title": "Instrument Shares",
+            "type": "object"
+          },
+          "dividend_cash_action": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/DividendCashActionEnum"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Date"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Goal"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "pie_id"
+        ],
+        "title": "update_pieArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "duplicate_pie",
+      "description": "\n    Create a duplicate of an existing pie.\n\n    Args:\n        pie_id: ID of the pie to duplicate\n        name: Optional new name for the duplicated pie\n        icon: Optional new icon for the duplicated pie\n\n    Returns:\n        AccountBucketInstrumentsDetailedResponse: Details of the duplicated pie\n    ",
+      "inputSchema": {
+        "properties": {
+          "pie_id": {
+            "title": "Pie Id",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Name"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Icon"
+          }
+        },
+        "required": [
+          "pie_id"
+        ],
+        "title": "duplicate_pieArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_all_orders",
+      "description": "Fetch all equity orders.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_ordersArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "place_limit_order",
+      "description": "\n    Place a limit order to buy or sell an instrument at a specified price or better.\n\n    Args:\n        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')\n        quantity: Number of shares/units to trade\n        limit_price: Limit price for the order\n        time_validity: Time validity of the order. Defaults to DAY.\n            Possible values: DAY, GOOD_TILL_CANCEL\n\n    Returns:\n        Order: Details of the placed order\n    ",
+      "inputSchema": {
+        "$defs": {
+          "LimitRequestTimeValidityEnum": {
+            "enum": [
+              "DAY",
+              "GOOD_TILL_CANCEL"
+            ],
+            "title": "LimitRequestTimeValidityEnum",
+            "type": "string"
+          }
+        },
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "limit_price": {
+            "title": "Limit Price",
+            "type": "number"
+          },
+          "time_validity": {
+            "$ref": "#/$defs/LimitRequestTimeValidityEnum",
+            "default": "DAY"
+          }
+        },
+        "required": [
+          "ticker",
+          "quantity",
+          "limit_price"
+        ],
+        "title": "place_limit_orderArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "place_market_order",
+      "description": "\n    Place a market order to buy or sell an instrument at the current market price.\n\n    Args:\n        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')\n        quantity: Number of shares/units to trade\n        extended_hours: Whether the order can execute outside regular trading\n            hours when the instrument supports it\n\n    Returns:\n        Order: Details of the placed order\n    ",
+      "inputSchema": {
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "extended_hours": {
+            "default": false,
+            "title": "Extended Hours",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ticker",
+          "quantity"
+        ],
+        "title": "place_market_orderArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "place_stop_order",
+      "description": "\n    Place a stop order to buy or sell an instrument when the market price\n    reaches a specified stop price.\n\n    Args:\n        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')\n        quantity: Number of shares/units to trade\n        stop_price: Stop price that triggers the order\n        time_validity: Time validity of the order. Defaults to DAY.\n            Possible values: DAY, GOOD_TILL_CANCEL\n\n    Returns:\n        Order: Details of the placed order\n    ",
+      "inputSchema": {
+        "$defs": {
+          "StopRequestTimeValidityEnum": {
+            "enum": [
+              "DAY",
+              "GOOD_TILL_CANCEL"
+            ],
+            "title": "StopRequestTimeValidityEnum",
+            "type": "string"
+          }
+        },
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "stop_price": {
+            "title": "Stop Price",
+            "type": "number"
+          },
+          "time_validity": {
+            "$ref": "#/$defs/StopRequestTimeValidityEnum",
+            "default": "DAY"
+          }
+        },
+        "required": [
+          "ticker",
+          "quantity",
+          "stop_price"
+        ],
+        "title": "place_stop_orderArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "place_stop_limit_order",
+      "description": "\n    Place a stop-limit order to buy or sell an instrument when the market\n    price reaches a specified stop price, then execute at a specified limit\n    price or better.\n\n    Args:\n        ticker: Ticker symbol of the instrument to trade (e.g., 'AAPL_US_EQ')\n        quantity: Number of shares/units to trade\n        stop_price: Stop price that triggers the limit order\n        limit_price: Limit price for the order\n        time_validity: Time validity of the order. Defaults to DAY.\n            Possible values: DAY, GOOD_TILL_CANCEL\n\n    Returns:\n        Order: Details of the placed order\n    ",
+      "inputSchema": {
+        "$defs": {
+          "StopLimitRequestTimeValidityEnum": {
+            "enum": [
+              "DAY",
+              "GOOD_TILL_CANCEL"
+            ],
+            "title": "StopLimitRequestTimeValidityEnum",
+            "type": "string"
+          }
+        },
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "stop_price": {
+            "title": "Stop Price",
+            "type": "number"
+          },
+          "limit_price": {
+            "title": "Limit Price",
+            "type": "number"
+          },
+          "time_validity": {
+            "$ref": "#/$defs/StopLimitRequestTimeValidityEnum",
+            "default": "DAY"
+          }
+        },
+        "required": [
+          "ticker",
+          "quantity",
+          "stop_price",
+          "limit_price"
+        ],
+        "title": "place_stop_limit_orderArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "cancel_order",
+      "description": "Cancel an existing order.",
+      "inputSchema": {
+        "properties": {
+          "order_id": {
+            "title": "Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "cancel_order_by_idArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_order",
+      "description": "Fetch a specific order by ID.",
+      "inputSchema": {
+        "properties": {
+          "order_id": {
+            "title": "Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "fetch_order_by_idArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_account_info",
+      "description": "Fetch the account summary.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_account_infoArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_account_summary",
+      "description": "Fetch the account summary.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_account_summaryArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_account_cash",
+      "description": "Fetch account cash balance.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_account_cashArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_positions",
+      "description": "Fetch open positions, optionally filtered by ticker.",
+      "inputSchema": {
+        "properties": {
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ticker"
+          }
+        },
+        "title": "fetch_positionsArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_position_by_ticker",
+      "description": "Fetch a single open position by ticker.",
+      "inputSchema": {
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticker"
+        ],
+        "title": "fetch_position_by_tickerArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_all_open_positions",
+      "description": "Deprecated alias for fetch_positions().",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_all_open_positionsArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_open_position_by_ticker",
+      "description": "Deprecated alias for fetch_position_by_ticker().",
+      "inputSchema": {
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticker"
+        ],
+        "title": "fetch_open_position_by_tickerArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "search_specific_position_by_ticker",
+      "description": "Deprecated alias for fetch_position_by_ticker().",
+      "inputSchema": {
+        "properties": {
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticker"
+        ],
+        "title": "search_position_by_tickerArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_historical_order_data",
+      "description": "Fetch historical order data with pagination.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "default": null,
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "ticker": {
+            "default": null,
+            "title": "Ticker",
+            "type": "string"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "fetch_historical_order_dataArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_paid_out_dividends",
+      "description": "Fetch historical dividend data with pagination.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "default": null,
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "ticker": {
+            "default": null,
+            "title": "Ticker",
+            "type": "string"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "fetch_paid_out_dividendsArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_exports_list",
+      "description": "Lists detailed information about all csv account exports.",
+      "inputSchema": {
+        "properties": {},
+        "title": "fetch_exports_listArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "request_csv_export",
+      "description": "\n    Request a CSV export of the account's orders, dividends and transactions\n    history.\n    Once the export is complete it can be accessed from the download link in the\n     exports list.\n\n    Args:\n        include_dividends: Whether to include dividend information in the export.\n            Defaults to True\n        include_interest: Whether to include interest information in the export.\n        Defaults to True\n        include_orders: Whether to include order history in the export.\n        Defaults to True\n        include_transactions: Whether to include transaction history in the export.\n        Defaults to True\n        time_from: Start time for the report in ISO 8601 format\n        (e.g., '2023-01-01T00:00:00Z')\n        time_to: End time for the report in ISO 8601 format\n        (e.g., '2023-12-31T23:59:59Z')\n\n    Returns:\n        EnqueuedReportResponse: Response containing the report ID and status\n    ",
+      "inputSchema": {
+        "properties": {
+          "include_dividends": {
+            "default": true,
+            "title": "Include Dividends",
+            "type": "boolean"
+          },
+          "include_interest": {
+            "default": true,
+            "title": "Include Interest",
+            "type": "boolean"
+          },
+          "include_orders": {
+            "default": true,
+            "title": "Include Orders",
+            "type": "boolean"
+          },
+          "include_transactions": {
+            "default": true,
+            "title": "Include Transactions",
+            "type": "boolean"
+          },
+          "time_from": {
+            "default": null,
+            "title": "Time From",
+            "type": "string"
+          },
+          "time_to": {
+            "default": null,
+            "title": "Time To",
+            "type": "string"
+          }
+        },
+        "title": "request_csv_exportArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "fetch_transaction_list",
+      "description": "Fetch superficial information about movements to and from your\n    account.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "fetch_transaction_listArguments",
+        "type": "object"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "trading212://account/info",
+      "name": "trading212://account/info",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://account/summary",
+      "name": "trading212://account/summary",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://account/cash",
+      "name": "trading212://account/cash",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://account/portfolio",
+      "name": "trading212://account/portfolio",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://account/positions",
+      "name": "trading212://account/positions",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://positions",
+      "name": "trading212://positions",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://orders",
+      "name": "trading212://orders",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://pies",
+      "name": "trading212://pies",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://instruments",
+      "name": "trading212://instruments",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://exchanges",
+      "name": "trading212://exchanges",
+      "mimeType": "text/plain"
+    },
+    {
+      "uri": "trading212://history/exports",
+      "name": "trading212://history/exports",
+      "mimeType": "text/plain"
+    }
+  ],
+  "templates": [
+    {
+      "uriTemplate": "trading212://account/portfolio/{ticker}",
+      "name": "get_account_position_by_ticker",
+      "description": "Deprecated alias for trading212://positions/{ticker}."
+    },
+    {
+      "uriTemplate": "trading212://account/positions/{ticker}",
+      "name": "get_account_position_by_ticker_v2",
+      "description": "Compatibility alias for trading212://positions/{ticker}."
+    },
+    {
+      "uriTemplate": "trading212://positions/{ticker}",
+      "name": "get_position_by_ticker",
+      "description": "Fetch a single open position by ticker."
+    },
+    {
+      "uriTemplate": "trading212://orders/{order_id}",
+      "name": "get_order_by_id",
+      "description": "Fetch a specific order by ID."
+    },
+    {
+      "uriTemplate": "trading212://pies/{pie_id}",
+      "name": "get_pie_by_id",
+      "description": "Fetch a specific pie by ID."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "analyse_trading212_data",
+      "description": "Analyse trading212 data.",
+      "arguments": []
+    }
+  ]
+}

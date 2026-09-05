@@ -1,153 +1,101 @@
-# Contributing to Trading212 MCP Server
+# Contributing
 
-## Getting Started
+## Setup and checks
 
-This project follows the MCP (Model Context Protocol) specification and uses the official MCP Python SDK. Before contributing, please familiarise yourself with the MCP Python SDK documentation:
+Use Python 3.11–3.14 and uv 0.12.9 or newer:
 
-- [MCP Python SDK Documentation](https://github.com/modelcontextprotocol/python-sdk)
-- [Core Concepts](https://github.com/modelcontextprotocol/python-sdk#core-concepts)
-- [Running Your Server](https://github.com/modelcontextprotocol/python-sdk#running-your-server)
-
-## Core Concepts
-
-### Server Implementation
-
-This project implements a FastMCP server that handles:
-- Connection management
-- Protocol compliance
-- Message routing
-- Session management
-
-### Resource Design
-
-When adding new resources:
-1. Use the `@mcp.resource` decorator
-2. Follow REST-like naming conventions
-3. Keep computations minimal
-4. Avoid side effects
-
-Example:
-```python
-@mcp.resource("trading212://account/{ticker}")
-def get_account_position(ticker: str) -> Position:
-    """Fetch position for a specific ticker."""
-    return client.get_position(ticker)
-```
-
-### Tool Implementation
-
-When adding new tools:
-1. Use the `@mcp.tool` decorator
-2. Include proper type hints
-3. Add clear docstrings
-4. Handle side effects appropriately
-
-Example:
-```python
-@mcp.tool()
-def place_market_order(order: MarketOrder) -> Order:
-    """Place a market order with specified parameters."""
-    return client.place_order(order)
-```
-
-### Prompt Development
-
-When adding new prompts:
-1. Use the `@mcp.prompt` decorator
-2. Provide clear instructions
-3. Include proper context
-4. Handle errors gracefully
-
-Example:
-```python
-@mcp.prompt()
-def analyze_trading_data(data: str) -> str:
-    """Analyze trading data and provide insights."""
-    return f"Analysis of {data}..."
-```
-
-## Development Workflow
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a Pull Request
-
-## Testing
-
-Ensure all new features include appropriate tests. Install the locked runtime
-and development dependencies, then run tests using:
-
-```bash
+```sh
 uv sync --frozen
-uv run --frozen pytest -q
+uv run --frozen ruff check .
+uv run --frozen ruff format --check .
+uv run --frozen mypy
+uv run --frozen pytest --cov --cov-report=term-missing
+uv run --frozen pip-audit --local
+uv build --no-build-isolation
 ```
 
-The cache regression suite uses synthetic credentials, temporary directories,
-and a mocked HTTP transport. It does not require a Trading212 account or make
-live Trading212 requests. GitHub Actions runs it on Python 3.11.
+Tests use synthetic credentials, temporary directories, and mock HTTP transports.
+They do not need a Trading 212 account. Stdio smoke tests launch local subprocesses
+and perform discovery only. Cross-process cache tests use spawned processes so
+connections and locks are not inherited. CI tests every supported Python version,
+plus Windows and macOS, package installation, and Docker startup.
 
-## Cache isolation and synchronization
+Use `feature/`, `fix/`, `chore/`, `docs/`, or `refactor/` branches as appropriate;
+do not use the `codex/` prefix in this repository.
 
-Keep cache construction in `src/utils/hishel_config.py`. Hishel 0.1.2's default
-cache key does not include Authorization; header-based separation depends on
-the upstream response declaring `Vary: Authorization`. We cannot rely on that
-header. Without our namespace isolation, account B can request the same URL
-as account A and receive A's cached balance without contacting the API.
+## Architecture
 
-The namespace hashes a JSON pair containing the API base URL and the actual
-Authorization header. Using the full header covers both legacy API keys and
-Basic key/secret credentials, including secret rotation. The base URL separates
-environments and API versions. The new cache root deliberately excludes old
-shared entries because their filenames cannot identify the owning account.
+`src/trading212_mcp/` is the installed package. `server.create_server()` registers
+handlers without reading credentials or opening an API connection. Lifespan owns
+a single client and closes it on shutdown. Each server gets its own client
+provider; there is no module-global account client. This also supports static MCP
+resources, for which the SDK does not support injected Context arguments.
 
-Clients for the same namespace must reuse a `FileStorage` instance within the
-process. Hishel's file lock belongs to that instance, not the directory. Two
-instances pointing at the same directory have independent locks, allowing a
-reader to see incomplete JSON during a write. The registry lock covers lookup
-and creation together; locking only insertion, or using a memoization helper
-that permits concurrent creation, would still allow duplicate instances.
-Hishel's own lock then coordinates file reads and writes after the factory
-returns. Closing a client is safe for other clients with the currently pinned
-Hishel version because `FileStorage.close()` is a no-op; recheck this behavior
-when upgrading the dependency.
+- `settings.py`: validated environment configuration; dotenv only at startup.
+- `client.py`: endpoint mapping, HTTP requests, bounded GET retries, safe errors.
+- `cache.py`: Hishel adapter, credential isolation, private storage and generation locks.
+- `models/`: response and request types, grouped by API domain.
+- `tools/`: typed MCP handlers by domain; resources and prompts are separate modules.
+- `registration.py`: consistent effect annotations and safe exception mapping.
 
-The registry uses resolved paths so separate working directories stay separate,
-and weak references so unused storage instances can be reclaimed. Reclaiming
-an instance does not erase its on-disk cache. This is synchronization within a
-process, not an interprocess lock or encrypted storage; see the README for
-deployment and cache-file access guidance.
+The MCP SDK runs synchronous handlers on worker threads. Keep client methods
+synchronous; use the server's lifetime and shared cache coordination rather than
+adding untracked background tasks. Keep the compatibility `src/server.py` launcher.
+Use explicit imports and type annotations. Ruff handles formatting and imports;
+mypy checks the complete installed package in strict mode.
 
-Preserve both kinds of regression coverage when changing this code: different
-credentials must never reuse responses, and concurrent same-credential clients
-must wait for complete writes. The concurrency test pauses a writer after it
-flushes partial JSON, starts a second client's read, and verifies that the read
-waits until the writer finishes. A separate test starts factory calls together
-to check that they all receive the same storage instance.
+## Public contracts
 
-## Code Style
+Keep tool names, argument names, resource URIs, and response fields compatible.
+`tests/fixtures/mcp_v1.json` captures the original discovery surface;
+`model_fields_v1.json` captures model fields and requiredness. Tests compare
+these contracts while permitting validation improvements and effect annotations.
+Avoid rewriting compatibility snapshots just to make a test pass.
 
-- Follow PEP 8 guidelines
-- Use type hints
-- Include docstrings
-- Keep lines under 80 characters
+Response models tolerate extra upstream fields. Request models reject unknown
+fields and non-finite values. Preserve negative quantities for sell orders.
+The checked-in OpenAPI schema is a reference: verify upstream changes before
+altering endpoint paths, types, or deprecation status. Do not add live trading
+calls to automated tests.
 
-## Security
+## Cache invariants
 
-If you find a security issue, please:
-1. Do not open a public issue
-2. Email the maintainers directly
-3. Follow responsible disclosure practices
+Credentials are attached only by the live HTTP client. Hishel receives sanitized
+requests and an allowlisted response header set; never pass Authorization,
+Set-Cookie, or arbitrary request/response headers into storage. Namespaces hash
+both the full outgoing authorization identity and API base URL.
 
-## Support
+Each client owns its storage connection and closes it. A per-namespace file lock
+serializes complete requests across processes, including streamed body consumption.
+Generation state is updated under that lock after mutations, even uncertain ones.
+The metadata generation is stable; private data uses a monotonically increasing
+generation. Old entries expire through Hishel cleanup. Do not replace this with
+an unlocked in-memory generation, or release the lock before body consumption.
+SQLite transaction context managers do not close their connections; use explicit
+closing as well. Keep warnings as errors in tests.
 
-For support, please:
-- Check the documentation
-- Search existing issues
-- Open a new issue if needed
-- Join the MCP community discussions
+Cache payloads contain private financial data, although credentials are excluded.
+Use private local directories. No automatic deletion or migration of legacy caches.
+Tests must cover credential/secret/environment/version isolation, persistence,
+expiration, concurrency, mutation invalidation, and absent credential bytes.
 
-## License
+## Dependency changes
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+`pyproject.toml` defines supported ranges and `uv.lock` pins resolutions. Upgrade
+with `uv lock --upgrade` and `uv sync --frozen`, review the changes, then regenerate:
+
+```sh
+uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
+```
+
+Do not edit generated requirements or independently pin transitive dependencies.
+Do not admit prereleases without an explicit compatibility decision. Run the audit,
+protocol tests, and packaging checks after upgrades; Hishel and MCP major updates
+need behavior verification. CI actions are pinned to commits; Dependabot proposes
+updates for uv, actions, and Docker.
+
+## Reporting issues
+
+Use GitHub issues for reproducible bugs with synthetic examples. Report security
+issues privately using [.github/SECURITY.md](.github/SECURITY.md); never include
+credentials or account data in public issues. Contributions use the MIT license.
