@@ -96,16 +96,12 @@ def test_full_protocol_surface_and_lifecycle(settings):
                 args = {
                     key: values[key] for key in tool.input_schema.get("required", [])
                 }
-                if tool.name == "update_pie":
-                    args["name"] = "Updated"
                 result = await session.call_tool(tool.name, args)
                 assert not result.is_error, (tool.name, result)
                 assert META_KEY in result.meta
                 assert tool.annotations is not None
                 baseline = next(t for t in BASELINE["tools"] if t["name"] == tool.name)
                 required = set(baseline["inputSchema"].get("required", []))
-                if tool.name == "update_pie":
-                    required.add("name")
                 assert set(tool.input_schema.get("required", [])) == required
                 assert set(tool.input_schema["properties"]) == set(
                     baseline["inputSchema"]["properties"]

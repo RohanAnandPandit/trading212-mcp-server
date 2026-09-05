@@ -25,15 +25,15 @@ publication, deployment, or live Trading 212 calls form part of this work.
 
 The 28 tool names, 11 static resources, five resource templates, and analysis
 prompt remain. Model fields and requiredness are checked against captured
-snapshots. Tool arguments retain their names; `update_pie.name` is now required
-as documented previously. Nullability and order validation are corrected.
+snapshots. Tool arguments retain their names and documented optionality.
+Nullability and order validation are corrected.
 Response payload fields are preserved; freshness is added through MCP `_meta`.
 Old internal Python import paths are replaced by the installed package; the
 supported `src/server.py` launch path remains.
 
 ## Verification
 
-- 95 offline tests pass; Python 3.11 coverage is 96% including branch coverage.
+- 96 offline tests pass; Python 3.11 coverage is 96% including branch coverage.
 - Supported interpreter matrix: Python 3.11, 3.12, 3.13, and stable 3.14.
 - Ruff checks, formatting checks, strict mypy, and whitespace checks pass.
 - Source distribution and wheel build successfully; an installed wheel outside

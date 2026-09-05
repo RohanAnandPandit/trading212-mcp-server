@@ -315,8 +315,6 @@ class Trading212Client:
         self, pie_id: int, pie_data: PieRequest
     ) -> AccountBucketInstrumentsDetailedResponse:
         """Update a specific pie by ID."""
-        if not pie_data.name or not pie_data.name.strip():
-            raise RequestError("A non-empty name is required to update a pie.")
         data = self._make_request(
             "POST",
             f"/equity/pies/{pie_id}",

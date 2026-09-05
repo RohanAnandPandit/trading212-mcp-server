@@ -14,6 +14,8 @@ class HistoryTransactionTypeEnum(StrEnum):
     DEPOSIT = "DEPOSIT"
     FEE = "FEE"
     TRANSFER = "TRANSFER"
+    INTEREST_ON_FREE_CASH = "INTEREST_ON_FREE_CASH"
+    LENDING_INTEREST = "LENDING_INTEREST"
 
 
 class ReportResponseStatusEnum(StrEnum):

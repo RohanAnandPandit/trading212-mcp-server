@@ -75,7 +75,7 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     @safe_handler
     def update_pie(
         pie_id: int,
-        name: str,
+        name: str | None = None,
         instrument_shares: dict[str, float] | None = None,
         dividend_cash_action: DividendCashActionEnum | None = None,
         end_date: datetime | None = None,
@@ -83,12 +83,11 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         icon: str | None = None,
     ) -> AccountBucketInstrumentsDetailedResponse:
         """
-        Update an existing pie with new parameters. The pie must be renamed when
-        updating it.
+        Update an existing pie with new parameters.
 
         Args:
             pie_id: ID of the pie to update
-            name: New name for the pie. Required when updating a pie.
+            name: Optional new name for the pie.
             instrument_shares: Dictionary mapping instrument tickers to their new
             weights in the pie
                 (e.g., {'AAPL_US_EQ': 0.5, 'MSFT_US_EQ': 0.5})

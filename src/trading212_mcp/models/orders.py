@@ -15,7 +15,7 @@ def nonzero(value: float) -> float:
 
 
 Quantity = Annotated[float, Field(allow_inf_nan=False), AfterValidator(nonzero)]
-Ticker = Annotated[str, Field(min_length=1, pattern=r"^[A-Za-z0-9_.-]+$")]
+Ticker = Annotated[str, Field(min_length=1)]
 Price = Annotated[float, Field(gt=0, allow_inf_nan=False)]
 
 
@@ -62,6 +62,7 @@ class PositionInitiatedFromEnum(StrEnum):
     WEB = "WEB"
     SYSTEM = "SYSTEM"
     AUTOINVEST = "AUTOINVEST"
+    INSTRUMENT_AUTOINVEST = "INSTRUMENT_AUTOINVEST"
 
 
 class StopLimitRequestTimeValidityEnum(StrEnum):

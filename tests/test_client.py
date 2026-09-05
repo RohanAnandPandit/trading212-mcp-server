@@ -14,8 +14,10 @@ from trading212_mcp.errors import (
 )
 from trading212_mcp.models import (
     DuplicateBucketRequest,
+    HistoryTransactionItem,
     LimitRequest,
     MarketRequest,
+    Order,
     PieRequest,
     StopLimitRequest,
     StopRequest,
@@ -72,7 +74,7 @@ CASES = [
         "/equity/pies",
         {},
     ),
-    ("update_pie", (12, PieRequest(name="Test")), "POST", "/equity/pies/12", {}),
+    ("update_pie", (12, PieRequest()), "POST", "/equity/pies/12", {}),
     (
         "duplicate_pie",
         (12, DuplicateBucketRequest(name="Copy")),
@@ -330,8 +332,15 @@ def test_invalid_ticker_and_export_dates(settings):
             )
         with pytest.raises(ValidationError):
             c.request_export(time_from="2025-01-01")
-        with pytest.raises(RequestError):
-            c.update_pie(1, PieRequest())
+
+
+def test_current_upstream_enum_values():
+    free_cash = HistoryTransactionItem(type="INTEREST_ON_FREE_CASH")
+    lending = HistoryTransactionItem(type="LENDING_INTEREST")
+    autoinvest = Order(initiatedFrom="INSTRUMENT_AUTOINVEST")
+    assert free_cash.type.value == "INTEREST_ON_FREE_CASH"
+    assert lending.type.value == "LENDING_INTEREST"
+    assert autoinvest.initiatedFrom.value == "INSTRUMENT_AUTOINVEST"
 
 
 def test_wrong_response_shape_is_typed_error(settings):
