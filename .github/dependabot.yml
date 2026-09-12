@@ -11,6 +11,11 @@ updates:
     groups:
       compatible-updates:
         update-types: [minor, patch]
+    ignore:
+      # Exact child versions are controlled by these packages' public parents.
+      # Standalone updates make uv.lock disagree with the generated export.
+      - dependency-name: mcp-types
+      - dependency-name: pydantic-core
   - package-ecosystem: github-actions
     directory: /
     schedule:
