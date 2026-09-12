@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Transitive packages are upgraded through their direct parent so uv can
+    # preserve exact parent/child constraints in the lockfile and export.
+    allow:
+      - dependency-type: direct
     groups:
       compatible-updates:
         update-types: [minor, patch]
