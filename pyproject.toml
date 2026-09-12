@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
-    "filelock>=3.32.5,<4",
+    "filelock>=3.32.6,<4",
     "hishel>=1.3.1,<1.4",
     "httpx>=0.28.1,<0.29",
     "mcp>=2.1.1,<2.2",
