@@ -13,7 +13,7 @@ dependencies = [
     "filelock>=3.32.6,<4",
     "hishel>=1.3.1,<1.4",
     "httpx>=0.28.1,<0.29",
-    "mcp>=2.1.1,<2.2",
+    "mcp>=2.2.0,<2.3",
     "pydantic>=2.13.5,<2.14",
     "python-dotenv>=1.2.3,<2",
 ]
@@ -34,7 +34,7 @@ trading212-mcp-server = "trading212_mcp.server:main"
 
 [dependency-groups]
 dev = [
-    "mcp[cli]>=2.1.1,<2.2",
+    "mcp[cli]>=2.2.0,<2.3",
     "pytest>=9.1.1,<10",
     "pytest-cov>=7.1,<8",
     "ruff>=0.16.6,<0.17",
