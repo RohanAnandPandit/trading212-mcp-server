@@ -15,6 +15,52 @@ official MCP Python SDK 2.x.
 
 ## Install and run
 
+### Set up with Codex or Claude Code
+
+If you use Codex or Claude Code on your computer, copy the entire prompt below
+into a new chat, not a terminal. The agent can install the server and connect
+it to your client.
+You will need to create API credentials in your Trading 212 account settings
+and enter them on your computer when the agent asks you to. Never paste your
+API key or secret into the chat. Start with the demo environment and grant only
+the API permissions you need.
+
+```text
+Help me connect my Trading 212 account to this Codex or Claude Code client using
+https://github.com/RohanAnandPandit/trading212-mcp-server. Handle the setup on
+my computer and explain any steps I must do myself in plain language.
+
+First read the repository's README and check what this client supports. Check
+for Git, uv, and a supported Python version. Install missing prerequisites
+using their official instructions if you can, or tell me exactly what to do.
+Choose a stable installation folder with me. Clone the repository there, or
+reuse an existing checkout without overwriting changes. Install its locked
+dependencies with `uv sync --frozen`.
+
+Register the server as a local stdio MCP server named `trading212`, using this
+client's supported method. Use `uv` to launch it with these arguments, replacing
+the example path with the checkout's absolute path:
+`run --frozen --directory /absolute/path/to/trading212-mcp-server trading212-mcp-server`
+Ask whether I want the connection available only in this workspace or across
+my projects before saving that setting. Start with `ENVIRONMENT=demo` and
+`TRANSPORT=stdio`. Do not use the live environment unless I explicitly ask.
+
+Create an ignored `.env` file in the checkout from `.env.example` if needed.
+Show me how to replace `TRADING212_API_KEY` and, for Basic authentication,
+`TRADING212_API_SECRET` in that local file. If I use API-key-only authentication,
+tell me to remove the example secret value. Keep the values out of chat,
+commands, and client configuration. Do not read, display, log, or repeat them.
+Wait for me to finish entering them.
+
+Then check that this client can connect to the server and discover its tools.
+Do not call any Trading 212 account or trading tools during setup. If a restart
+is needed, guide me through it. Tell me what worked, what remains for me to do,
+and where the client configuration was saved. Do not claim setup is complete
+until the discovery check succeeds.
+```
+
+### Manual setup
+
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
 
 ```sh
