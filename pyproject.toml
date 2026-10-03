@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.32,<2"]
+requires = ["hatchling>=1.32.4,<2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -11,7 +11,7 @@ license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
     "filelock>=3.32.6,<4",
-    "hishel>=1.3.1,<1.4",
+    "hishel>=1.4.0,<1.5",
     "httpx>=0.28.1,<0.29",
     "mcp>=2.2.0,<2.3",
     "pydantic>=2.13.5,<2.14",
@@ -37,11 +37,11 @@ dev = [
     "mcp[cli]>=2.2.0,<2.3",
     "pytest>=9.1.1,<10",
     "pytest-cov>=7.1,<8",
-    "ruff>=0.16.6,<0.17",
+    "ruff>=0.16.8,<0.17",
     "mypy>=2.3.1,<3",
     "pip-audit>=2.10.1,<3",
-    "build>=1.6,<2",
-    "hatchling>=1.32,<2",
+    "build>=1.6.1,<2",
+    "hatchling>=1.32.4,<2",
 ]
 
 [tool.hatch.build.targets.wheel]
