@@ -15,98 +15,84 @@ official MCP Python SDK 2.x.
 
 ## Install and run
 
-### Set up with a coding agent
-
-If you use a coding agent that can work on your computer, such as Codex or
-Claude Code, copy the entire prompt below into a new chat, not a terminal.
-The agent can install the server and connect it to the coding tool you use.
-
-You will need to create API credentials in your Trading 212 account settings
-and enter them on your computer when the agent asks you to. Never paste your
-API key or secret into the chat. Start with the demo environment and grant only
-the API permissions you need.
+You can follow the setup below yourself or ask a coding agent such as Codex or
+Claude Code to do it. Paste this prompt into the agent's chat:
 
 ```text
-Help me connect my Trading 212 account to the coding agent I'm using with
-https://github.com/RohanAnandPandit/trading212-mcp-server. Handle the setup on
-my computer and explain any steps I must do myself in plain language.
-
-First read the repository's README and check what this coding agent supports.
-Check for Git, uv, and a supported Python version. Install missing prerequisites
-using their official instructions if you can, or tell me exactly what to do.
-Choose a stable installation folder with me. Clone the repository there, or
-reuse an existing checkout without overwriting changes. Install its locked
-dependencies with `uv sync --frozen`.
-
-Register the server as a local stdio MCP server named `trading212`, using this
-coding agent's supported method. Use `uv` to launch it with these arguments,
-replacing the example path with the checkout's absolute path:
-`run --frozen --directory /absolute/path/to/trading212-mcp-server trading212-mcp-server`
-Ask whether I want the connection available only in this workspace or across
-my projects before saving that setting. Start with `ENVIRONMENT=demo` and
-`TRANSPORT=stdio`. Do not use the live environment unless I explicitly ask.
-
-Create an ignored `.env` file in the checkout from `.env.example` if needed.
-Show me how to replace `TRADING212_API_KEY` and, for Basic authentication,
-`TRADING212_API_SECRET` in that local file. If I use API-key-only authentication,
-tell me to remove the example secret value. Keep the values out of chat,
-commands, and client configuration. Do not read, display, log, or repeat them.
-Wait for me to finish entering them.
-
-Then check that this coding agent can connect to the server and discover its
-tools. Do not call any Trading 212 account or trading tools during setup. If a
-restart is needed, guide me through it. Tell me what worked and what remains,
-and where its MCP configuration was saved. Do not claim setup is complete
-until the discovery check succeeds.
+Read https://github.com/RohanAnandPandit/trading212-mcp-server/blob/main/README.md#setup
+and follow the setup process.
 ```
 
-### Manual setup
+### Setup
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
+1. **Install prerequisites and dependencies.** You need Git,
+   [uv](https://docs.astral.sh/uv/getting-started/installation/), and Python
+   3.11–3.14. Choose a stable installation folder, then run:
 
-```sh
-git clone https://github.com/RohanAnandPandit/trading212-mcp-server.git
-cd trading212-mcp-server
-uv sync --frozen
-cp .env.example .env
-# Edit .env with your own credentials.
-uv run --frozen trading212-mcp-server
-```
+   ```sh
+   git clone https://github.com/RohanAnandPandit/trading212-mcp-server.git
+   cd trading212-mcp-server
+   uv sync --frozen
+   ```
 
-Alternatively, install the package from the checkout using `pip install .`,
-then run `trading212-mcp-server`. For a locked pip installation, use
-`pip install --require-hashes -r requirements.txt` followed by
-`pip install --no-deps .`.
+   If you already have a checkout, reuse it without overwriting local changes.
+   Alternatively, install the package from the checkout using `pip install .`,
+   then run `trading212-mcp-server`. For a locked pip installation, use
+   `pip install --require-hashes -r requirements.txt` followed by
+   `pip install --no-deps .`.
 
-Generate credentials in your Trading 212 account's API settings. Set
-`TRADING212_API_KEY` and, for Basic authentication, `TRADING212_API_SECRET`.
-API-key-only authentication remains available for existing integrations, where
-accepted by Trading 212. Use the demo environment for testing. Live credentials
-and `ENVIRONMENT=live` enable operations on the real account.
+2. **Configure credentials locally.** Create an ignored `.env` file from
+   `.env.example` if one does not already exist:
 
-The server reads `.env` in its working directory at startup. Existing process
-environment variables take precedence. Imports and tool discovery do not make
-Trading 212 requests. No credentials are required merely to import the server.
+   ```sh
+   cp .env.example .env
+   ```
 
-### Desktop MCP configuration
+   Generate credentials in your Trading 212 account's API settings, granting
+   only the permissions you need. Edit `.env` yourself to set
+   `TRADING212_API_KEY` and, for Basic authentication, `TRADING212_API_SECRET`.
+   API-key-only authentication remains available for existing integrations,
+   where accepted by Trading 212; remove the example secret value if using it.
+   Start with `ENVIRONMENT=demo` and `TRANSPORT=stdio`. Use the live environment
+   only when you explicitly choose to enable operations on your real account.
 
-Use this configuration in your MCP client's server settings:
+   Keep credentials out of chat, commands, logs, and MCP client configuration.
+   If an agent is helping, enter the values yourself; the agent must wait for
+   you and must not read, display, log, or repeat them.
 
-```json
-{
-  "mcpServers": {
-    "trading212": {
-      "command": "uv",
-      "args": ["run", "--frozen", "--directory", "/absolute/path/to/trading212-mcp-server", "trading212-mcp-server"],
-      "env": {
-        "TRADING212_API_KEY": "YOUR_API_KEY",
-        "TRADING212_API_SECRET": "YOUR_API_SECRET",
-        "ENVIRONMENT": "demo"
-      }
-    }
-  }
-}
-```
+   The server reads `.env` in its working directory at startup. Existing
+   process environment variables take precedence.
+
+3. **Connect your MCP client.** Use your client's supported method to register
+   a local stdio server named `trading212`. Choose whether the connection should
+   be available only in this workspace or across your projects before saving
+   it. Clients that accept `mcpServers` JSON can use:
+
+   ```json
+   {
+     "mcpServers": {
+       "trading212": {
+         "command": "uv",
+         "args": ["run", "--frozen", "--directory", "/absolute/path/to/trading212-mcp-server", "trading212-mcp-server"],
+         "env": {
+           "ENVIRONMENT": "demo",
+           "TRANSPORT": "stdio"
+         }
+       }
+     }
+   }
+   ```
+
+   Replace the example path with your checkout's absolute path. Credentials
+   stay in the checkout's `.env` file. To launch the server directly from the
+   checkout, run `uv run --frozen trading212-mcp-server`.
+
+4. **Verify the connection.** Restart your MCP client if needed and check that
+   it connects to the server and discovers its tools. Setup is complete only
+   when discovery succeeds. Imports and tool discovery do not make Trading 212
+   requests, and no credentials are required merely to import the server. Do
+   not call account or trading tools during setup. Record where the MCP
+   configuration was saved and any steps that remain.
 
 Existing configurations pointing to `src/server.py` continue to work after
 `uv sync --frozen`. The script also remains the Inspector entry point:
