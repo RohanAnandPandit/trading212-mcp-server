@@ -366,3 +366,74 @@ def test_export_dates_serialization(settings):
     import json
 
     assert json.loads(calls[0].content)["timeTo"] == "2025-02-01T00:00:00Z"
+
+
+def test_tax_fields_survive_history_response(settings):
+    data = {
+        "items": [
+            {
+                "fill": {
+                    "walletImpact": {
+                        "taxes": [
+                            {
+                                "chargedAt": "2026-10-23T10:00:00Z",
+                                "currency": "GBP",
+                                "name": "STAMP_DUTY",
+                                "quantity": 1.2,
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "nextPagePath": None,
+    }
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(lambda req: httpx.Response(200, json=data)),
+    ) as client:
+        tax = client.get_historical_order_data().items[0].fill.walletImpact.taxes[0]
+        assert tax.currency == "GBP"
+        assert tax.chargedAt.isoformat() == "2026-10-23T10:00:00+00:00"
+
+
+def test_export_response_allows_nested_additions_but_requests_stay_strict(settings):
+    from trading212_mcp.models import ReportDataIncluded
+
+    data = [
+        {"reportId": 1, "dataIncluded": {"includeOrders": True, "futureFlag": True}}
+    ]
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(lambda req: httpx.Response(200, json=data)),
+    ) as client:
+        assert client.get_reports()[0].dataIncluded.includeOrders is True
+    with pytest.raises(ValidationError):
+        ReportDataIncluded.model_validate({"futureFlag": True})
+
+
+@pytest.mark.parametrize(
+    "method,bad,good",
+    [
+        ("get_orders", {}, []),
+        (
+            "get_historical_order_data",
+            {"items": [{}], "nextPagePath": 123},
+            {"items": []},
+        ),
+        ("get_exchanges", [{}], []),
+    ],
+)
+def test_invalid_response_is_not_cached(settings, method, bad, good):
+    calls = []
+
+    def respond(req):
+        calls.append(req)
+        return httpx.Response(200, json=bad if len(calls) == 1 else good)
+
+    with Trading212Client(settings, transport=httpx.MockTransport(respond)) as client:
+        with pytest.raises(InvalidResponseError):
+            getattr(client, method)()
+        recovered = getattr(client, method)()
+        assert getattr(client, method)() == recovered
+    assert len(calls) == 2

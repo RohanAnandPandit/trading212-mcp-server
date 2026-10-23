@@ -208,6 +208,7 @@ Authorization and cookies never enter the cache layer. Cache responses contain
 financial data in plaintext; private filesystem permissions are not encryption.
 Use a private local disk, not a shared or network-mounted cache directory.
 
+Successful responses are validated against their endpoint models before caching.
 Only successful GETs are cached, and expired responses are never served.
 Mutations are never cached or automatically retried. After any attempted
 mutation, private-cache generations advance, including when the outcome is

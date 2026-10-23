@@ -107,7 +107,11 @@ class ResponseCache:
             state.execute("INSERT OR IGNORE INTO generation VALUES (1, 0)")
 
     def request(
-        self, method: str, url: str, sender: Callable[[Request], Response]
+        self,
+        method: str,
+        url: str,
+        sender: Callable[[Request], Response],
+        validate: Callable[[bytes], object] | None = None,
     ) -> bytes:
         if self.closed:
             raise RequestError("The API client is closed.")
@@ -125,6 +129,15 @@ class ResponseCache:
         request = Request(
             method=method, url=url, headers=Headers({}), metadata={"hishel_ttl": ttl}
         )
+
+        def validated_sender(request: Request) -> Response:
+            response = sender(request)
+            if validate is not None:
+                # Validate before Hishel can persist a successful response. read()
+                # retains the body for Hishel's subsequent stream consumption.
+                validate(response.read())
+            return response
+
         try:
             with self.lock:
                 if self.closed:
@@ -141,7 +154,7 @@ class ResponseCache:
                 try:
                     if method == "GET" and ttl > 0:
                         proxy = SyncCacheProxy(
-                            sender,
+                            validated_sender,
                             storage=self.storage,
                             policy=FilterPolicy(
                                 response_filters=[SuccessfulResponse()]
@@ -149,7 +162,7 @@ class ResponseCache:
                         )
                         response = proxy.handle_request(request)
                     else:
-                        response = sender(request)
+                        response = validated_sender(request)
                     # Hishel writes streaming bodies lazily: consume while holding the lock.
                     body = response.read()
                     recorded = observations.get()

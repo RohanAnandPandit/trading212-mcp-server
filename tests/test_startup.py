@@ -18,7 +18,11 @@ def test_model_field_compatibility():
     before = json.loads((ROOT / "tests/fixtures/model_fields_v1.json").read_text())
     for name, shape in before.items():
         model = getattr(models, name)
-        assert list(model.model_fields) == shape["fields"], name
+        # Optional additive fields preserve the original public contract.
+        assert [n for n in model.model_fields if n in shape["fields"]] == shape[
+            "fields"
+        ], name
+        assert set(shape["fields"]) <= set(model.model_fields), name
         assert [n for n, f in model.model_fields.items() if f.is_required()] == shape[
             "required"
         ], name

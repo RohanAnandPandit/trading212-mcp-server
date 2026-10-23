@@ -48,7 +48,10 @@ mypy checks the complete installed package in strict mode.
 
 Keep tool names, argument names, resource URIs, and response fields compatible.
 `tests/fixtures/mcp_v1.json` captures the original discovery surface;
-`model_fields_v1.json` captures model fields and requiredness. Tests compare
+`model_fields_v1.json` captures model fields and requiredness. Additive optional
+fields are allowed while existing fields and requiredness remain protected.
+`test_schema_contract.py` checks documented fields and enum values against the
+reviewed API snapshot, including the nested export response model. Tests compare
 these contracts while permitting validation improvements and effect annotations.
 Avoid rewriting compatibility snapshots just to make a test pass.
 
@@ -82,11 +85,24 @@ expiration, concurrency, mutation invalidation, and absent credential bytes.
 ## Dependency changes
 
 `pyproject.toml` defines supported ranges and `uv.lock` pins resolutions. Upgrade
-with `uv lock --upgrade` and `uv sync --frozen`, review the changes, then regenerate:
+with the helper below, which resolves the lockfile, regenerates the export and
+synchronizes the environment together:
+
+```sh
+bash scripts/update-dependencies.sh             # refresh all packages
+bash scripts/update-dependencies.sh pydantic    # refresh selected packages
+```
+
+Review both generated files. To regenerate just the export:
 
 ```sh
 uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
 ```
+
+Dependabot excludes the generated requirements manifest from its update scan;
+after a lockfile update, use the helper to regenerate the export before merging.
+CI checks lockfile freshness and export consistency; security auditing runs in
+an independent job so quality failures cannot suppress it.
 
 Do not edit generated requirements or independently pin transitive dependencies.
 Do not admit prereleases without an explicit compatibility decision. Run the audit,

@@ -220,14 +220,24 @@ class Trading212Client:
         params = kwargs.get("params")
         if params:
             target = target.copy_merge_params(params)
+        schema = kwargs.get("response_schema")
         body = self.cache.request(
-            method, str(target), lambda request: self._send(request, kwargs.get("json"))
+            method,
+            str(target),
+            lambda request: self._send(request, kwargs.get("json")),
+            validate=(
+                lambda body: parse_response(schema, json.loads(body) if body else None)
+            )
+            if schema is not None
+            else None,
         )
         return json.loads(body) if body else None
 
     def get_account_summary(self) -> AccountSummary:
         """Fetch the account summary."""
-        data = self._make_request("GET", "/equity/account/summary")
+        data = self._make_request(
+            "GET", "/equity/account/summary", response_schema=AccountSummary
+        )
         return parse_response(AccountSummary, data)
 
     def get_account_cash(self) -> Cash:
@@ -239,13 +249,17 @@ class Trading212Client:
 
     def get_account_positions(self) -> list[Position]:
         """Fetch all open positions."""
-        data = self._make_request("GET", "/equity/positions")
+        data = self._make_request(
+            "GET", "/equity/positions", response_schema=list[Position]
+        )
         return parse_response(list[Position], data)
 
     def get_positions(self, ticker: str | None = None) -> list[Position]:
         """Fetch positions, optionally filtered by ticker."""
         params = {"ticker": ticker} if ticker else None
-        data = self._make_request("GET", "/equity/positions", params=params)
+        data = self._make_request(
+            "GET", "/equity/positions", params=params, response_schema=list[Position]
+        )
         return parse_response(list[Position], data)
 
     def get_position_by_ticker(self, ticker: str) -> Position:
@@ -263,6 +277,23 @@ class Trading212Client:
         """Deprecated alias for fetching a single position by ticker."""
         return self.get_position_by_ticker(ticker)
 
+    @staticmethod
+    def _history_params(
+        cursor: int | str | None,
+        limit: int,
+        *,
+        ticker: str | None = None,
+        time_from: str | None = None,
+    ) -> dict[str, int | str]:
+        params: dict[str, int | str] = {"limit": min(50, max(1, limit))}
+        if cursor is not None:
+            params["cursor"] = cursor
+        if ticker is not None:
+            params["ticker"] = ticker
+        if time_from is not None:
+            params["time"] = time_from
+        return params
+
     def get_dividends(
         self,
         cursor: int | None = None,
@@ -270,34 +301,42 @@ class Trading212Client:
         limit: int = 20,
     ) -> PaginatedResponseHistoryDividendItem:
         """Fetch dividend history with optional pagination."""
-        params: dict[str, int | str] = {}
-        if cursor is not None:
-            params["cursor"] = cursor
-        if ticker is not None:
-            params["ticker"] = ticker
-        params["limit"] = min(50, max(1, limit))
+        params = self._history_params(cursor, limit, ticker=ticker)
 
-        data = self._make_request("GET", "/equity/history/dividends", params=params)
+        data = self._make_request(
+            "GET",
+            "/equity/history/dividends",
+            params=params,
+            response_schema=PaginatedResponseHistoryDividendItem,
+        )
         return parse_response(PaginatedResponseHistoryDividendItem, data)
 
     def get_orders(self) -> list[Order]:
         """Fetch current orders."""
-        data = self._make_request("GET", "/equity/orders")
+        data = self._make_request("GET", "/equity/orders", response_schema=list[Order])
         return parse_response(list[Order], data)
 
     def get_order_by_id(self, order_id: int) -> Order:
         """Fetch a specific order by ID."""
-        data = self._make_request("GET", f"/equity/orders/{order_id}")
+        data = self._make_request(
+            "GET", f"/equity/orders/{order_id}", response_schema=Order
+        )
         return parse_response(Order, data)
 
     def get_pies(self) -> list[AccountBucketResultResponse]:
         """Fetch all pies."""
-        data = self._make_request("GET", "/equity/pies")
+        data = self._make_request(
+            "GET", "/equity/pies", response_schema=list[AccountBucketResultResponse]
+        )
         return parse_response(list[AccountBucketResultResponse], data)
 
     def get_pie_by_id(self, pie_id: int) -> AccountBucketInstrumentsDetailedResponse:
         """Fetch a specific pie by ID."""
-        data = self._make_request("GET", f"/equity/pies/{pie_id}")
+        data = self._make_request(
+            "GET",
+            f"/equity/pies/{pie_id}",
+            response_schema=AccountBucketInstrumentsDetailedResponse,
+        )
         return parse_response(AccountBucketInstrumentsDetailedResponse, data)
 
     def create_pie(
@@ -308,6 +347,7 @@ class Trading212Client:
             "POST",
             "/equity/pies",
             json=pie_data.model_dump(mode="json", exclude_none=True),
+            response_schema=AccountBucketInstrumentsDetailedResponse,
         )
         return parse_response(AccountBucketInstrumentsDetailedResponse, data)
 
@@ -319,6 +359,7 @@ class Trading212Client:
             "POST",
             f"/equity/pies/{pie_id}",
             json=pie_data.model_dump(mode="json", exclude_none=True),
+            response_schema=AccountBucketInstrumentsDetailedResponse,
         )
         return parse_response(AccountBucketInstrumentsDetailedResponse, data)
 
@@ -332,6 +373,7 @@ class Trading212Client:
             "POST",
             f"/equity/pies/{pie_id}/duplicate",
             json=duplicate_bucket_request.model_dump(mode="json", exclude_none=True),
+            response_schema=AccountBucketInstrumentsDetailedResponse,
         )
         return parse_response(AccountBucketInstrumentsDetailedResponse, data)
 
@@ -346,13 +388,14 @@ class Trading212Client:
         limit: int = 20,
     ) -> PaginatedResponseHistoricalOrder:
         """Fetch historical order data with pagination."""
-        params: dict[str, int | str] = {"limit": min(50, max(1, limit))}
-        if cursor is not None:
-            params["cursor"] = cursor
-        if ticker is not None:
-            params["ticker"] = ticker
+        params = self._history_params(cursor, limit, ticker=ticker)
 
-        data = self._make_request("GET", "/equity/history/orders", params=params)
+        data = self._make_request(
+            "GET",
+            "/equity/history/orders",
+            params=params,
+            response_schema=PaginatedResponseHistoricalOrder,
+        )
         return parse_response(PaginatedResponseHistoricalOrder, data)
 
     def get_history_transactions(
@@ -362,23 +405,30 @@ class Trading212Client:
         limit: int = 20,
     ) -> PaginatedResponseHistoryTransactionItem:
         """Fetch movements to and from the account."""
-        params: dict[str, int | str] = {"limit": min(50, max(1, limit))}
-        if cursor is not None:
-            params["cursor"] = cursor
-        if time_from is not None:
-            params["time"] = time_from
+        params = self._history_params(cursor, limit, time_from=time_from)
 
-        data = self._make_request("GET", "/equity/history/transactions", params=params)
+        data = self._make_request(
+            "GET",
+            "/equity/history/transactions",
+            params=params,
+            response_schema=PaginatedResponseHistoryTransactionItem,
+        )
         return parse_response(PaginatedResponseHistoryTransactionItem, data)
 
     def get_instruments(self) -> list[TradeableInstrument]:
         """Fetch all tradeable instruments."""
-        data = self._make_request("GET", "/equity/metadata/instruments")
+        data = self._make_request(
+            "GET",
+            "/equity/metadata/instruments",
+            response_schema=list[TradeableInstrument],
+        )
         return parse_response(list[TradeableInstrument], data)
 
     def get_exchanges(self) -> list[Exchange]:
         """Fetch all exchanges and their working schedules."""
-        data = self._make_request("GET", "/equity/metadata/exchanges")
+        data = self._make_request(
+            "GET", "/equity/metadata/exchanges", response_schema=list[Exchange]
+        )
         return parse_response(list[Exchange], data)
 
     def place_market_order(self, order_data: MarketRequest) -> Order:
@@ -387,6 +437,7 @@ class Trading212Client:
             "POST",
             "/equity/orders/market",
             json=order_data.model_dump(mode="json", exclude_none=True),
+            response_schema=Order,
         )
         return parse_response(Order, data)
 
@@ -396,6 +447,7 @@ class Trading212Client:
             "POST",
             "/equity/orders/limit",
             json=order_data.model_dump(mode="json", exclude_none=True),
+            response_schema=Order,
         )
         return parse_response(Order, data)
 
@@ -405,6 +457,7 @@ class Trading212Client:
             "POST",
             "/equity/orders/stop",
             json=order_data.model_dump(mode="json", exclude_none=True),
+            response_schema=Order,
         )
         return parse_response(Order, data)
 
@@ -414,6 +467,7 @@ class Trading212Client:
             "POST",
             "/equity/orders/stop_limit",
             json=order_data.model_dump(mode="json", exclude_none=True),
+            response_schema=Order,
         )
         return parse_response(Order, data)
 
@@ -423,7 +477,9 @@ class Trading212Client:
 
     def get_reports(self) -> list[ReportResponse]:
         """Get account export reports."""
-        data = self._make_request("GET", "/equity/history/exports")
+        data = self._make_request(
+            "GET", "/equity/history/exports", response_schema=list[ReportResponse]
+        )
         return parse_response(list[ReportResponse], data)
 
     def request_export(
@@ -449,5 +505,10 @@ class Trading212Client:
         if time_to:
             payload["timeTo"] = time_to
 
-        data = self._make_request("POST", "/equity/history/exports", json=payload)
+        data = self._make_request(
+            "POST",
+            "/equity/history/exports",
+            json=payload,
+            response_schema=EnqueuedReportResponse,
+        )
         return parse_response(EnqueuedReportResponse, data)

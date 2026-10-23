@@ -4,6 +4,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # requirements.txt is generated from uv.lock, not a dependency manifest.
+    exclude-paths: ["requirements.txt"]
     # Transitive packages are upgraded through their direct parent so uv can
     # preserve exact parent/child constraints in the lockfile and export.
     allow:
