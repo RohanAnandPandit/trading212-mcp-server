@@ -2,6 +2,10 @@
 
 ## 0.2.0 — Unreleased
 
+- Preserve tax charge dates and currencies; tolerate additional nested export response fields.
+- Validate endpoint responses before caching and test model coverage against the API snapshot.
+- Separate security auditing from quality checks; add a dependency lock/export update helper.
+
 - Migrate to MCP SDK 2.x and current supported dependencies; add a typed installable package.
 - Preserve 28 tools, 16 resource registrations, the prompt, and the script launcher.
 - Create API clients during server lifespan and close them on shutdown.

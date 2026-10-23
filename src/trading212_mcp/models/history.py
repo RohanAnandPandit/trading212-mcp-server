@@ -36,6 +36,8 @@ class Tax(ApiModel):
     name: str | None = None
     quantity: float | None = None
     timeCharged: datetime | None = None
+    chargedAt: datetime | None = None
+    currency: str | None = None
 
 
 class FillWalletImpact(ApiModel):
@@ -105,6 +107,13 @@ class ReportDataIncluded(RequestModel):
     includeTransactions: bool | None = True
 
 
+class ReportDataIncludedResponse(ApiModel):
+    includeDividends: bool | None = True
+    includeInterest: bool | None = True
+    includeOrders: bool | None = True
+    includeTransactions: bool | None = True
+
+
 class PublicReportRequest(RequestModel):
     dataIncluded: ReportDataIncluded | None = None
     timeFrom: datetime | None = None
@@ -121,7 +130,7 @@ class PublicReportRequest(RequestModel):
 
 
 class ReportResponse(ApiModel):
-    dataIncluded: ReportDataIncluded | None = None
+    dataIncluded: ReportDataIncludedResponse | None = None
     downloadLink: str | None = None
     reportId: int | None = None
     status: ReportResponseStatusEnum | None = None
