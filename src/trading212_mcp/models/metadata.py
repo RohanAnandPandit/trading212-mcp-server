@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from .base import ApiModel
+from .base import ApiModel, OpenEnum
 
 
 class TimeEventTypeEnum(StrEnum):
@@ -29,19 +29,19 @@ class TradeableInstrumentTypeEnum(StrEnum):
 
 
 class TimeEvent(ApiModel):
-    date: datetime
-    type: TimeEventTypeEnum
+    date: datetime | None = None
+    type: OpenEnum[TimeEventTypeEnum] | None = None
 
 
 class WorkingSchedule(ApiModel):
-    id: int
-    timeEvents: list[TimeEvent]
+    id: int | None = None
+    timeEvents: list[TimeEvent] | None = None
 
 
 class Exchange(ApiModel):
-    id: int
-    name: str
-    workingSchedules: list[WorkingSchedule]
+    id: int | None = None
+    name: str | None = None
+    workingSchedules: list[WorkingSchedule] | None = None
 
 
 class Instrument(ApiModel):
@@ -61,5 +61,5 @@ class TradeableInstrument(ApiModel):
     name: str | None = None
     shortName: str | None = None
     ticker: str | None = None
-    type: TradeableInstrumentTypeEnum | None = None
+    type: OpenEnum[TradeableInstrumentTypeEnum] | None = None
     workingScheduleId: int | None = None

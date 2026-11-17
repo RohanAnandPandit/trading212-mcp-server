@@ -412,6 +412,53 @@ def test_export_response_allows_nested_additions_but_requests_stay_strict(settin
         ReportDataIncluded.model_validate({"futureFlag": True})
 
 
+def test_unknown_response_enum_values_do_not_reject_responses(settings):
+    from trading212_mcp.models import OrderStatusEnum, OrderTypeEnum
+
+    orders = [
+        {"id": 1, "status": "FILLED", "type": "LIMIT"},
+        {"id": 2, "status": "FUTURE_STATUS", "type": "FUTURE_TYPE"},
+    ]
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(lambda req: httpx.Response(200, json=orders)),
+    ) as client:
+        known, unknown = client.get_orders()
+    assert known.status is OrderStatusEnum.FILLED
+    assert known.type is OrderTypeEnum.LIMIT
+    assert type(unknown.status) is str
+    assert unknown.status == "FUTURE_STATUS"
+    assert unknown.type == "FUTURE_TYPE"
+
+
+def test_exchanges_tolerate_fields_the_schema_does_not_require(settings):
+    data = [
+        {"id": 1, "name": "Partial"},
+        {"workingSchedules": [{"timeEvents": [{"type": "FUTURE_EVENT"}]}]},
+    ]
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(lambda req: httpx.Response(200, json=data)),
+    ) as client:
+        partial, sparse = client.get_exchanges()
+    assert partial.workingSchedules is None
+    assert sparse.workingSchedules[0].timeEvents[0].type == "FUTURE_EVENT"
+
+
+def test_request_enums_stay_strict():
+    from trading212_mcp.models import LimitRequest
+
+    with pytest.raises(ValidationError):
+        LimitRequest.model_validate(
+            {
+                "ticker": "AAPL_US_EQ",
+                "quantity": 1,
+                "limitPrice": 1,
+                "timeValidity": "FUTURE_VALIDITY",
+            }
+        )
+
+
 @pytest.mark.parametrize(
     "method,bad,good",
     [
@@ -421,7 +468,7 @@ def test_export_response_allows_nested_additions_but_requests_stay_strict(settin
             {"items": [{}], "nextPagePath": 123},
             {"items": []},
         ),
-        ("get_exchanges", [{}], []),
+        ("get_exchanges", [{"workingSchedules": "daily"}], []),
     ],
 )
 def test_invalid_response_is_not_cached(settings, method, bad, good):
