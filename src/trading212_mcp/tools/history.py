@@ -67,7 +67,9 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         """Lists detailed information about all csv account exports."""
         return get_client().get_reports()
 
-    @mcp.tool("request_csv_export", annotations=annotations(write=True))
+    @mcp.tool(
+        "request_csv_export", annotations=annotations(write=True, destructive=False)
+    )
     @safe_handler
     def request_csv_export(
         include_dividends: bool = True,

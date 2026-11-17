@@ -3,6 +3,11 @@
 ## 0.2.0 — Unreleased
 
 - Add an optional `next_page_path` argument to the history tools so the next page can be fetched by passing `nextPagePath` back unchanged.
+- Report Trading 212's short error `code` (for example an order rejection reason) in failed-request errors, never other upstream text.
+- Cap `search_instrument` results with a `limit` argument (default 100) and rank exact ticker, symbol or name matches first.
+- Mark `create_pie`, `duplicate_pie` and `request_csv_export` as non-destructive; note in pie tool descriptions that the endpoints are deprecated upstream.
+- Add `TRADING212_HOST` (loopback only) and `TRADING212_PORT` for the HTTP transports.
+- Update to MCP SDK 2.3, pydantic 2.14.3 and filelock 4.2.11.
 - Keep unknown upstream enum values in responses as strings instead of rejecting the whole response; request enums stay strict.
 - Stop requiring exchange, working-schedule, and time-event fields that the public schema leaves optional.
 - Preserve tax charge dates and currencies; tolerate additional nested export response fields.

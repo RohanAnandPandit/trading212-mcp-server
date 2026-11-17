@@ -18,10 +18,13 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     @mcp.tool("fetch_pies", annotations=annotations(write=False))
     @safe_handler
     def fetch_pies() -> list[AccountBucketResultResponse]:
-        """Fetch all pies."""
+        """Fetch all pies.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
+        """
         return get_client().get_pies()
 
-    @mcp.tool("create_pie", annotations=annotations(write=True))
+    @mcp.tool("create_pie", annotations=annotations(write=True, destructive=False))
     @safe_handler
     def create_pie(
         name: str,
@@ -33,6 +36,8 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     ) -> AccountBucketInstrumentsDetailedResponse:
         """
         Create a new pie with the specified parameters.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
 
         Args:
             name: Name of the pie
@@ -62,13 +67,19 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     @mcp.tool("delete_pie", annotations=annotations(write=True))
     @safe_handler
     def delete_pie(pie_id: int) -> None:
-        """Delete a pie."""
+        """Delete a pie.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
+        """
         return get_client().delete_pie(pie_id)
 
     @mcp.tool("fetch_a_pie", annotations=annotations(write=False))
     @safe_handler
     def fetch_a_pie(pie_id: int) -> AccountBucketInstrumentsDetailedResponse:
-        """Fetch a specific pie by ID."""
+        """Fetch a specific pie by ID.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
+        """
         return get_client().get_pie_by_id(pie_id)
 
     @mcp.tool("update_pie", annotations=annotations(write=True))
@@ -84,6 +95,8 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     ) -> AccountBucketInstrumentsDetailedResponse:
         """
         Update an existing pie with new parameters.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
 
         Args:
             pie_id: ID of the pie to update
@@ -111,7 +124,7 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         )
         return get_client().update_pie(pie_id, pie_data)
 
-    @mcp.tool("duplicate_pie", annotations=annotations(write=True))
+    @mcp.tool("duplicate_pie", annotations=annotations(write=True, destructive=False))
     @safe_handler
     def duplicate_pie(
         pie_id: int,
@@ -120,6 +133,8 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
     ) -> AccountBucketInstrumentsDetailedResponse:
         """
         Create a duplicate of an existing pie.
+
+        Trading 212 has deprecated the pie endpoints; they may be removed.
 
         Args:
             pie_id: ID of the pie to duplicate

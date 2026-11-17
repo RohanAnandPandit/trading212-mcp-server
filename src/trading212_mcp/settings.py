@@ -15,6 +15,9 @@ class Settings(BaseModel):
     api_secret: SecretStr | None = None
     environment: Literal["demo", "live"] = "demo"
     transport: Literal["stdio", "sse", "streamable-http"] = "stdio"
+    # HTTP transports have no authentication, so they only bind to loopback.
+    host: Literal["127.0.0.1", "localhost", "::1"] = "127.0.0.1"
+    port: int = Field(default=8000, ge=1, le=65535)
     cache_dir: Path = Path(".cache/trading212-v3")
     account_ttl: float = Field(default=15, ge=0, allow_inf_nan=False)
     history_ttl: float = Field(default=300, ge=0, allow_inf_nan=False)
@@ -37,6 +40,8 @@ class Settings(BaseModel):
                 "api_secret": os.getenv("TRADING212_API_SECRET") or None,
                 "environment": os.getenv("ENVIRONMENT", "demo"),
                 "transport": os.getenv("TRANSPORT", "stdio"),
+                "host": os.getenv("TRADING212_HOST", "127.0.0.1"),
+                "port": os.getenv("TRADING212_PORT", "8000"),
                 "cache_dir": os.getenv("TRADING212_CACHE_DIR", ".cache/trading212-v3"),
                 "account_ttl": os.getenv("TRADING212_ACCOUNT_TTL", "15"),
                 "history_ttl": os.getenv("TRADING212_HISTORY_TTL", "300"),

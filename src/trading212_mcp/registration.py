@@ -14,10 +14,11 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def annotations(*, write: bool) -> ToolAnnotations:
+def annotations(*, write: bool, destructive: bool | None = None) -> ToolAnnotations:
+    """MCP hints. Writes are destructive unless they only create something new."""
     return ToolAnnotations(
         read_only_hint=not write,
-        destructive_hint=write,
+        destructive_hint=write if destructive is None else write and destructive,
         idempotent_hint=not write,
         open_world_hint=True,
     )

@@ -18,6 +18,8 @@ def offline(monkeypatch, tmp_path):
         "TRADING212_API_SECRET",
         "ENVIRONMENT",
         "TRANSPORT",
+        "TRADING212_HOST",
+        "TRADING212_PORT",
     ):
         monkeypatch.delenv(name, raising=False)
 
