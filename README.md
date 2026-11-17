@@ -134,6 +134,19 @@ files are excluded from the image. The default container cache is ephemeral;
 mount a private directory writable by UID 10001 at `/home/app/.cache` if you
 want persistence. Stdio does not require publishing a port.
 
+## Portfolio analysis skill
+
+The free, MIT-licensed [Trading 212 Portfolio Analysis skill](skills/trading212-portfolio-analysis/SKILL.md)
+guides the setup above and helps an agent interpret holdings, cash, open orders,
+dividends and transaction history. It requires this server to be connected
+separately and does not execute trades, change pies or request exports. The
+server's mutation tools remain available; use suitable API permissions and client
+approval controls.
+
+The skill has been submitted to Agensi and is pending review. See the
+[submission draft](docs/agensi/listing.md) and
+[validation status](docs/agensi/validation.md) for current progress.
+
 ## Configuration
 
 | Variable | Default | Meaning |
