@@ -2,6 +2,8 @@
 
 ## 0.2.0 — Unreleased
 
+- Keep unknown upstream enum values in responses as strings instead of rejecting the whole response; request enums stay strict.
+- Stop requiring exchange, working-schedule, and time-event fields that the public schema leaves optional.
 - Preserve tax charge dates and currencies; tolerate additional nested export response fields.
 - Validate endpoint responses before caching and test model coverage against the API snapshot.
 - Separate security auditing from quality checks; add a dependency lock/export update helper.

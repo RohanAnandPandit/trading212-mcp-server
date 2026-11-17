@@ -4,7 +4,7 @@ from typing import Self
 
 from pydantic import model_validator
 
-from .base import ApiModel, RequestModel
+from .base import ApiModel, OpenEnum, RequestModel
 from .metadata import Instrument
 from .orders import Order
 
@@ -82,7 +82,7 @@ class HistoryTransactionItem(ApiModel):
     currency: str | None = None
     dateTime: datetime | None = None
     reference: str | None = None
-    type: HistoryTransactionTypeEnum | None = None
+    type: OpenEnum[HistoryTransactionTypeEnum] | None = None
 
 
 class PaginatedResponseHistoricalOrder(ApiModel):
@@ -133,6 +133,6 @@ class ReportResponse(ApiModel):
     dataIncluded: ReportDataIncludedResponse | None = None
     downloadLink: str | None = None
     reportId: int | None = None
-    status: ReportResponseStatusEnum | None = None
+    status: OpenEnum[ReportResponseStatusEnum] | None = None
     timeFrom: datetime | None = None
     timeTo: datetime | None = None

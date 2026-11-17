@@ -114,20 +114,14 @@
       "date",
       "type"
     ],
-    "required": [
-      "date",
-      "type"
-    ]
+    "required": []
   },
   "WorkingSchedule": {
     "fields": [
       "id",
       "timeEvents"
     ],
-    "required": [
-      "id",
-      "timeEvents"
-    ]
+    "required": []
   },
   "Exchange": {
     "fields": [
@@ -135,11 +129,7 @@
       "name",
       "workingSchedules"
     ],
-    "required": [
-      "id",
-      "name",
-      "workingSchedules"
-    ]
+    "required": []
   },
   "Instrument": {
     "fields": [

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, Field
 
-from .base import ApiModel, RequestModel
+from .base import ApiModel, OpenEnum, RequestModel
 from .metadata import Instrument
 
 
@@ -100,17 +100,17 @@ class Order(ApiModel):
     filledQuantity: float | None = None
     filledValue: float | None = None
     id: int | None = None
-    initiatedFrom: PositionInitiatedFromEnum | None = None
+    initiatedFrom: OpenEnum[PositionInitiatedFromEnum] | None = None
     instrument: Instrument | None = None
     limitPrice: float | None = None
     quantity: float | None = None
-    side: OrderSideEnum | None = None
-    status: OrderStatusEnum | None = None
+    side: OpenEnum[OrderSideEnum] | None = None
+    status: OpenEnum[OrderStatusEnum] | None = None
     stopPrice: float | None = None
-    strategy: OrderStrategyEnum | None = None
+    strategy: OpenEnum[OrderStrategyEnum] | None = None
     ticker: str | None = None
-    timeInForce: TimeValidityEnum | None = None
-    type: OrderTypeEnum | None = None
+    timeInForce: OpenEnum[TimeValidityEnum] | None = None
+    type: OpenEnum[OrderTypeEnum] | None = None
     value: float | None = None
 
 

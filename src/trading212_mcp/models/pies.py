@@ -3,7 +3,7 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from .base import ApiModel, RequestModel
+from .base import ApiModel, OpenEnum, RequestModel
 
 
 class DividendCashActionEnum(StrEnum):
@@ -19,7 +19,7 @@ class AccountBucketResultStatusEnum(StrEnum):
 
 class AccountBucketDetailedResponse(ApiModel):
     creationDate: datetime | None = None
-    dividendCashAction: DividendCashActionEnum | None = None
+    dividendCashAction: OpenEnum[DividendCashActionEnum] | None = None
     endDate: datetime | None = None
     goal: float | None = None
     icon: str | None = None
@@ -68,7 +68,7 @@ class AccountBucketResultResponse(ApiModel):
     id: int | None = None
     progress: float | None = None
     result: InvestmentResult | None = None
-    status: AccountBucketResultStatusEnum | None = None
+    status: OpenEnum[AccountBucketResultStatusEnum] | None = None
 
 
 class DuplicateBucketRequest(RequestModel):
