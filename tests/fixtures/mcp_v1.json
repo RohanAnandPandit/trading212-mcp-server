@@ -611,6 +611,11 @@
             "default": 20,
             "title": "Limit",
             "type": "integer"
+          },
+          "next_page_path": {
+            "default": null,
+            "title": "Next Page Path",
+            "type": "string"
           }
         },
         "title": "fetch_historical_order_dataArguments",
@@ -636,6 +641,11 @@
             "default": 20,
             "title": "Limit",
             "type": "integer"
+          },
+          "next_page_path": {
+            "default": null,
+            "title": "Next Page Path",
+            "type": "string"
           }
         },
         "title": "fetch_paid_out_dividendsArguments",
@@ -724,6 +734,11 @@
             "default": 20,
             "title": "Limit",
             "type": "integer"
+          },
+          "next_page_path": {
+            "default": null,
+            "title": "Next Page Path",
+            "type": "string"
           }
         },
         "title": "fetch_transaction_listArguments",

@@ -21,10 +21,21 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         cursor: int | None = None,
         ticker: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoricalOrder:
-        """Fetch historical order data with pagination."""
+        """Fetch one page of historical orders (newest first).
+
+        To get the next page, call again with only next_page_path set to the
+        previous response's nextPagePath. A null nextPagePath means no more pages.
+
+        Args:
+            cursor: Pagination cursor
+            ticker: Only return orders for this ticker
+            limit: Items per page, 1-50 (default 20)
+            next_page_path: nextPagePath from the previous page; use on its own
+        """
         return get_client().get_historical_order_data(
-            cursor=cursor, ticker=ticker, limit=limit
+            cursor=cursor, ticker=ticker, limit=limit, next_page_path=next_page_path
         )
 
     @mcp.tool("fetch_paid_out_dividends", annotations=annotations(write=False))
@@ -33,9 +44,22 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         cursor: int | None = None,
         ticker: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoryDividendItem:
-        """Fetch historical dividend data with pagination."""
-        return get_client().get_dividends(cursor=cursor, ticker=ticker, limit=limit)
+        """Fetch one page of paid-out dividends.
+
+        To get the next page, call again with only next_page_path set to the
+        previous response's nextPagePath. A null nextPagePath means no more pages.
+
+        Args:
+            cursor: Pagination cursor
+            ticker: Only return dividends for this ticker
+            limit: Items per page, 1-50 (default 20)
+            next_page_path: nextPagePath from the previous page; use on its own
+        """
+        return get_client().get_dividends(
+            cursor=cursor, ticker=ticker, limit=limit, next_page_path=next_page_path
+        )
 
     @mcp.tool("fetch_exports_list", annotations=annotations(write=False))
     @safe_handler
@@ -92,9 +116,19 @@ def register(mcp: MCPServer, get_client: Callable[[], Trading212Client]) -> None
         cursor: str | None = None,
         time: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoryTransactionItem:
-        """Fetch superficial information about movements to and from your
-        account."""
+        """Fetch one page of movements to and from the account.
+
+        To get the next page, call again with only next_page_path set to the
+        previous response's nextPagePath. A null nextPagePath means no more pages.
+
+        Args:
+            cursor: Pagination cursor
+            time: Return transactions starting from this ISO 8601 date-time
+            limit: Items per page, 1-50 (default 20)
+            next_page_path: nextPagePath from the previous page; use on its own
+        """
         return get_client().get_history_transactions(
-            cursor=cursor, time_from=time, limit=limit
+            cursor=cursor, time_from=time, limit=limit, next_page_path=next_page_path
         )
