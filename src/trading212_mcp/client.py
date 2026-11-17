@@ -294,22 +294,45 @@ class Trading212Client:
             params["time"] = time_from
         return params
 
+    def _history_page(
+        self,
+        endpoint: str,
+        schema: type[T],
+        params: dict[str, int | str],
+        next_page_path: str | None,
+    ) -> T:
+        """Fetch one history page, from filters or from a returned nextPagePath."""
+        if next_page_path is None:
+            data = self._make_request(
+                "GET", endpoint, params=params, response_schema=schema
+            )
+            return parse_response(schema, data)
+        if set(params) - {"limit"}:
+            raise RequestError(
+                "Pass next_page_path on its own; it already carries the cursor "
+                "and filters."
+            )
+        # Follow the upstream path verbatim so its cursor, filters and limit stay
+        # consistent, but only within the history endpoint that was asked for.
+        if urlsplit(self._normalise_path(next_page_path)).path != endpoint:
+            raise RequestError("next_page_path belongs to a different endpoint.")
+        data = self._make_request("GET", next_page_path, response_schema=schema)
+        return parse_response(schema, data)
+
     def get_dividends(
         self,
         cursor: int | None = None,
         ticker: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoryDividendItem:
         """Fetch dividend history with optional pagination."""
-        params = self._history_params(cursor, limit, ticker=ticker)
-
-        data = self._make_request(
-            "GET",
+        return self._history_page(
             "/equity/history/dividends",
-            params=params,
-            response_schema=PaginatedResponseHistoryDividendItem,
+            PaginatedResponseHistoryDividendItem,
+            self._history_params(cursor, limit, ticker=ticker),
+            next_page_path,
         )
-        return parse_response(PaginatedResponseHistoryDividendItem, data)
 
     def get_orders(self) -> list[Order]:
         """Fetch current orders."""
@@ -386,34 +409,30 @@ class Trading212Client:
         cursor: int | None = None,
         ticker: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoricalOrder:
         """Fetch historical order data with pagination."""
-        params = self._history_params(cursor, limit, ticker=ticker)
-
-        data = self._make_request(
-            "GET",
+        return self._history_page(
             "/equity/history/orders",
-            params=params,
-            response_schema=PaginatedResponseHistoricalOrder,
+            PaginatedResponseHistoricalOrder,
+            self._history_params(cursor, limit, ticker=ticker),
+            next_page_path,
         )
-        return parse_response(PaginatedResponseHistoricalOrder, data)
 
     def get_history_transactions(
         self,
         cursor: str | None = None,
         time_from: str | None = None,
         limit: int = 20,
+        next_page_path: str | None = None,
     ) -> PaginatedResponseHistoryTransactionItem:
         """Fetch movements to and from the account."""
-        params = self._history_params(cursor, limit, time_from=time_from)
-
-        data = self._make_request(
-            "GET",
+        return self._history_page(
             "/equity/history/transactions",
-            params=params,
-            response_schema=PaginatedResponseHistoryTransactionItem,
+            PaginatedResponseHistoryTransactionItem,
+            self._history_params(cursor, limit, time_from=time_from),
+            next_page_path,
         )
-        return parse_response(PaginatedResponseHistoryTransactionItem, data)
 
     def get_instruments(self) -> list[TradeableInstrument]:
         """Fetch all tradeable instruments."""

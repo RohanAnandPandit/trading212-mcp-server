@@ -2,6 +2,7 @@
 
 ## 0.2.0 — Unreleased
 
+- Add an optional `next_page_path` argument to the history tools so the next page can be fetched by passing `nextPagePath` back unchanged.
 - Keep unknown upstream enum values in responses as strings instead of rejecting the whole response; request enums stay strict.
 - Stop requiring exchange, working-schedule, and time-event fields that the public schema leaves optional.
 - Preserve tax charge dates and currencies; tolerate additional nested export response fields.

@@ -176,9 +176,10 @@ tools are retained.
 
 `fetch_account_info` aliases `fetch_account_summary`. The older position tools
 remain compatibility aliases. Historical tools return a single page with
-`nextPagePath`; pass its cursor and other query parameters to fetch the next
-page. Limits retain their existing clamp to 1–50. Requests do not automatically
-traverse all pages or follow export download links.
+`nextPagePath`; pass it unchanged as `next_page_path` (with no other filters) to
+fetch the next page, and stop when it is null. The path must belong to the same
+history endpoint. Limits retain their existing clamp to 1–50. Requests do not
+automatically traverse all pages or follow export download links.
 
 ## Resources and prompt
 

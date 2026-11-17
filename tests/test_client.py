@@ -484,3 +484,59 @@ def test_invalid_response_is_not_cached(settings, method, bad, good):
         recovered = getattr(client, method)()
         assert getattr(client, method)() == recovered
     assert len(calls) == 2
+
+
+@pytest.mark.parametrize(
+    "method,next_page_path",
+    [
+        (
+            "get_historical_order_data",
+            "/api/v0/equity/history/orders?limit=5&ticker=AAPL_US_EQ&cursor=99",
+        ),
+        ("get_dividends", "/api/v0/equity/history/dividends?limit=5&cursor=99"),
+        (
+            "get_history_transactions",
+            "/api/v0/equity/history/transactions?limit=5"
+            "&time=2026-01-01T00%3A00%3A00Z&cursor=abc",
+        ),
+    ],
+)
+def test_next_page_path_is_followed_verbatim(settings, method, next_page_path):
+    calls = []
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(
+            lambda req: (
+                calls.append(req)
+                or httpx.Response(200, json={"items": [], "nextPagePath": None})
+            )
+        ),
+    ) as client:
+        page = getattr(client, method)(next_page_path=next_page_path)
+    assert page.nextPagePath is None
+    assert calls[0].url.raw_path.decode() == next_page_path
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        # Another endpoint, even a readable one, is not a history page.
+        {"next_page_path": "/api/v0/equity/positions?cursor=1"},
+        {"next_page_path": "/api/v0/equity/history/dividends?cursor=1"},
+        {"next_page_path": "/api/v1/equity/history/orders?cursor=1"},
+        {"next_page_path": "https://example.com/api/v0/equity/history/orders"},
+        {"next_page_path": "/api/v0/equity/history/orders/../../orders"},
+        # The path already carries the cursor and filters.
+        {"next_page_path": "/api/v0/equity/history/orders?cursor=1", "cursor": 2},
+        {"next_page_path": "/api/v0/equity/history/orders", "ticker": "AAPL_US_EQ"},
+    ],
+)
+def test_next_page_path_is_validated(settings, kwargs):
+    calls = []
+    with Trading212Client(
+        settings,
+        transport=httpx.MockTransport(lambda req: calls.append(req)),
+    ) as client:
+        with pytest.raises(RequestError):
+            client.get_historical_order_data(**kwargs)
+    assert calls == []
