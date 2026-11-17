@@ -1,0 +1,57 @@
+{
+  "name": "trading212",
+  "displayName": "Trading 212",
+  "version": "0.2.0",
+  "description": "Trading 212 MCP server (account, positions, orders, pies, instruments and history) plus a read-only portfolio analysis skill",
+  "author": {
+    "name": "Rohan Pandit",
+    "url": "https://github.com/RohanAnandPandit"
+  },
+  "homepage": "https://github.com/RohanAnandPandit/trading212-mcp-server#claude-code-plugin",
+  "repository": "https://github.com/RohanAnandPandit/trading212-mcp-server",
+  "license": "MIT",
+  "keywords": ["trading212", "mcp", "portfolio", "investing", "brokerage"],
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Trading 212 API key",
+      "description": "API key from your Trading 212 account's API settings. Grant only the permissions you need.",
+      "required": true,
+      "sensitive": true
+    },
+    "api_secret": {
+      "type": "string",
+      "title": "Trading 212 API secret",
+      "description": "Secret for Basic authentication. Leave empty only for legacy API-key-only authentication.",
+      "sensitive": true,
+      "default": ""
+    },
+    "environment": {
+      "type": "string",
+      "title": "Environment",
+      "description": "demo uses a paper-trading account; live acts on your real account, including any orders you approve.",
+      "options": ["demo", "live"],
+      "default": "demo"
+    }
+  },
+  "mcpServers": {
+    "trading212": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--frozen",
+        "--no-dev",
+        "--directory",
+        "${CLAUDE_PLUGIN_ROOT}",
+        "trading212-mcp-server"
+      ],
+      "env": {
+        "TRADING212_API_KEY": "${user_config.api_key}",
+        "TRADING212_API_SECRET": "${user_config.api_secret}",
+        "ENVIRONMENT": "${user_config.environment}",
+        "TRANSPORT": "stdio",
+        "TRADING212_CACHE_DIR": "${CLAUDE_PLUGIN_DATA}/cache"
+      }
+    }
+  }
+}

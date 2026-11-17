@@ -15,6 +15,9 @@ official MCP Python SDK 2.x.
 
 ## Install and run
 
+Using Claude Code? Install the [Claude Code plugin](#claude-code-plugin)
+instead; it needs no clone or manual MCP configuration.
+
 You can follow the setup below yourself or ask a coding agent such as Codex or
 Claude Code to do it. Paste this prompt into the agent's chat:
 
@@ -133,6 +136,53 @@ The image runs as UID/GID 10001. Credentials, local caches, and development
 files are excluded from the image. The default container cache is ephemeral;
 mount a private directory writable by UID 10001 at `/home/app/.cache` if you
 want persistence. Stdio does not require publishing a port.
+
+## Claude Code plugin
+
+This repository is also a Claude Code plugin marketplace. The `trading212`
+plugin bundles the MCP server and the
+[portfolio analysis skill](#portfolio-analysis-skill), so you don't need to
+clone the repository or edit MCP configuration. You need
+[uv](https://docs.astral.sh/uv/getting-started/installation/) on your `PATH`;
+uv downloads a supported Python if necessary.
+
+In a Claude Code session, run:
+
+```text
+/plugin install trading212 --marketplace RohanAnandPandit/trading212-mcp-server
+```
+
+On Claude Code versions before 2.1.275, add the marketplace first:
+
+```text
+/plugin marketplace add RohanAnandPandit/trading212-mcp-server
+/plugin install trading212@trading212-mcp-server
+```
+
+Claude Code then asks for:
+
+| Option | Meaning |
+|---|---|
+| API key | Required. Stored in your system's secure credential store |
+| API secret | For Basic authentication; also stored securely. Leave empty only for legacy API-key-only access |
+| Environment | `demo` (default) or `live`. Choose `live` only when you intend to allow operations on your real account |
+
+To change these later, run `/plugin configure trading212@trading212-mcp-server`.
+Credentials are never written to `settings.json` or a `.env` file. The plugin's
+response cache is kept in Claude Code's per-plugin data directory
+(`~/.claude/plugins/data/`), which survives updates and is deleted when you
+uninstall the plugin.
+
+The first start creates a virtual environment from the locked dependencies,
+which can take a few seconds. Run `/mcp` to check that
+`plugin:trading212:trading212` is connected. Tools appear as
+`mcp__plugin_trading212_trading212__<tool>`; use those names in permission rules,
+for example to require approval for order and pie mutations. If you have also
+configured the server manually as `trading212`, remove one of the two to avoid
+duplicate tools.
+
+To try a local checkout without installing it, run `claude --plugin-dir .` from
+the repository root.
 
 ## Portfolio analysis skill
 
