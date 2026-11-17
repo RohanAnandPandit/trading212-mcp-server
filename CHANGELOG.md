@@ -2,6 +2,7 @@
 
 ## 0.2.0 — Unreleased
 
+- Package the repository as a Claude Code plugin and marketplace: the `trading212` plugin bundles the server and the portfolio analysis skill, prompts for credentials (stored in secure storage) and the demo/live environment, and caches responses in the plugin data directory.
 - Add the free Trading 212 Portfolio Analysis skill (read-only account analysis) with a reproducible Agensi packaging script.
 - Add an optional `next_page_path` argument to the history tools so the next page can be fetched by passing `nextPagePath` back unchanged.
 - Report Trading 212's short error `code` (for example an order rejection reason) in failed-request errors, never other upstream text.

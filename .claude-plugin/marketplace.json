@@ -1,0 +1,16 @@
+{
+  "name": "trading212-mcp-server",
+  "description": "Claude Code plugin for the Trading 212 public API",
+  "owner": {
+    "name": "Rohan Pandit",
+    "url": "https://github.com/RohanAnandPandit"
+  },
+  "plugins": [
+    {
+      "name": "trading212",
+      "source": "./",
+      "description": "Trading 212 MCP server plus a read-only portfolio analysis skill",
+      "category": "finance"
+    }
+  ]
+}
