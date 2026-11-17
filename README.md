@@ -142,14 +142,17 @@ want persistence. Stdio does not require publishing a port.
 | `TRADING212_API_SECRET` | Unset | Secret for Basic authentication |
 | `ENVIRONMENT` | `demo` | `demo` or `live` |
 | `TRANSPORT` | `stdio` | `stdio`, `sse`, or `streamable-http` |
+| `TRADING212_HOST` | `127.0.0.1` | HTTP bind address: `127.0.0.1`, `localhost`, or `::1` |
+| `TRADING212_PORT` | `8000` | HTTP port, 1–65535 |
 | `TRADING212_CACHE_DIR` | `.cache/trading212-v3` | Cache root; relative to working directory |
 | `TRADING212_ACCOUNT_TTL` | `15` | Account, positions, orders, pies, export-status cache seconds |
 | `TRADING212_HISTORY_TTL` | `300` | History cache seconds |
 | `TRADING212_METADATA_TTL` | `3600` | Instrument and exchange cache seconds |
 
 A TTL of zero disables caching for that category. Values must be finite and
-non-negative. HTTP transports bind only to `127.0.0.1:8000`, with explicit
-Host/Origin restrictions. This is a local single-account server; hosted access,
+non-negative. HTTP transports bind only to a loopback address (default
+`127.0.0.1:8000`), with explicit Host/Origin restrictions; other addresses are
+rejected at startup. This is a local single-account server; hosted access,
 public HTTP binding, and multi-user authentication are not provided. Do not
 expose it through a public proxy or tunnel. Tool annotations describe effects;
 they do not implement permissions. Use API permissions and your MCP client's
@@ -166,6 +169,12 @@ All previous tool names are retained:
 | Orders | `fetch_all_orders`, `fetch_order`, `place_market_order`, `place_limit_order`, `place_stop_order`, `place_stop_limit_order`, `cancel_order` |
 | Pies | `fetch_pies`, `fetch_a_pie`, `create_pie`, `update_pie`, `duplicate_pie`, `delete_pie` |
 | Metadata | `search_instrument`, `search_exchange` |
+
+`search_instrument` returns at most `limit` results (default 100, maximum
+5000), with exact ticker, symbol or name matches first, then ticker prefixes,
+then other matches. Rejected requests report the HTTP status and, when Trading
+212 supplies one, its short error `code` (for example an order rejection
+reason); other upstream error text is never returned.
 | History | `fetch_historical_order_data`, `fetch_paid_out_dividends`, `fetch_transaction_list`, `fetch_exports_list`, `request_csv_export` |
 
 Positive order quantities buy; negative quantities sell. Zero/non-finite

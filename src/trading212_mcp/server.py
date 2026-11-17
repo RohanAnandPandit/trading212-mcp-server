@@ -106,7 +106,8 @@ def main() -> None:
         settings = Settings.from_env()
     except ValidationError:
         raise SystemExit(
-            "Invalid configuration. Check API credentials, ENVIRONMENT, TRANSPORT and cache settings."
+            "Invalid configuration. Check API credentials, ENVIRONMENT, TRANSPORT, "
+            "TRADING212_HOST/TRADING212_PORT and cache settings."
         ) from None
     server = create_server(settings)
     if settings.transport == "stdio":
@@ -114,11 +115,17 @@ def main() -> None:
     else:
         server.run(
             transport=settings.transport,
-            host="127.0.0.1",
-            port=8000,
-            transport_security=TransportSecuritySettings(
-                enable_dns_rebinding_protection=True,
-                allowed_hosts=["127.0.0.1:8000", "localhost:8000"],
-                allowed_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
-            ),
+            host=settings.host,
+            port=settings.port,
+            transport_security=http_security(settings.port),
         )
+
+
+def http_security(port: int) -> TransportSecuritySettings:
+    """DNS-rebinding protection that accepts only loopback names on ``port``."""
+    hosts = [f"{name}:{port}" for name in ("127.0.0.1", "localhost", "[::1]")]
+    return TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=hosts,
+        allowed_origins=[f"http://{host}" for host in hosts],
+    )

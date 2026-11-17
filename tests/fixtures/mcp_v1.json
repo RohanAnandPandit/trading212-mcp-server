@@ -9,6 +9,11 @@
             "default": null,
             "title": "Search Term",
             "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "title": "Limit",
+            "type": "integer"
           }
         },
         "title": "search_instrumentArguments",

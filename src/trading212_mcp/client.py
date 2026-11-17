@@ -47,6 +47,7 @@ from .models import (
 from .settings import Settings
 
 T = TypeVar("T")
+ERROR_CODE = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,63}")
 
 
 def parse_response(schema: type[T], data: Any) -> T:
@@ -148,6 +149,23 @@ class Trading212Client:
                 pass
         return float(2**attempt)
 
+    @staticmethod
+    def _error_code(response: httpx.Response) -> str | None:
+        """Return an upstream error code such as an order rejection reason.
+
+        The public schema does not define error bodies, so this is best effort.
+        Only a short identifier-like ``code`` is surfaced; free text (for example
+        ``clarification``) and the rest of the body never reach callers.
+        """
+        try:
+            body = json.loads(response.content[:4096])
+        except (ValueError, UnicodeError):
+            return None
+        code = body.get("code") if isinstance(body, dict) else None
+        if isinstance(code, str) and ERROR_CODE.fullmatch(code):
+            return code
+        return None
+
     def _send(self, request: Request, payload: Any) -> Response:
         deadline = self._monotonic() + 30
         for attempt in range(3):
@@ -205,7 +223,12 @@ class Trading212Client:
                         raise RateLimitError(
                             "Trading 212 rate limit reached; retry later."
                         )
-                    raise UpstreamError(f"Trading 212 request failed (HTTP {status}).")
+                    code = self._error_code(response) if status < 500 else None
+                    raise UpstreamError(
+                        f"Trading 212 request failed (HTTP {status}"
+                        + (f", code {code}" if code else "")
+                        + ")."
+                    )
                 delay = self._retry_delay(response, attempt)
             if delay >= deadline - self._monotonic():
                 raise RateLimitError(

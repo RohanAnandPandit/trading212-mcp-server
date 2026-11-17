@@ -73,6 +73,10 @@ def test_stdio_handshake_discovery_and_shutdown(args, tmp_path):
         ("account_ttl", -1),
         ("metadata_ttl", float("inf")),
         ("api_key", ""),
+        ("host", "0.0.0.0"),  # noqa: S104 - asserting it is rejected
+        ("host", "192.168.1.10"),
+        ("port", 0),
+        ("port", 70000),
     ],
 )
 def test_invalid_settings(field, value):
@@ -100,25 +104,53 @@ def test_http_binding_and_protection(monkeypatch):
     )
     main()
     assert calls[0]["host"] == "127.0.0.1"
+    assert calls[0]["port"] == 8000
     protection = calls[0]["transport_security"]
     assert protection.enable_dns_rebinding_protection
     assert "*" not in protection.allowed_hosts
     assert "*" not in protection.allowed_origins
 
 
+def test_http_host_and_port_are_configurable(monkeypatch):
+    from trading212_mcp.server import TradingServer, main
+
+    calls = []
+    monkeypatch.setenv("TRADING212_API_KEY", "synthetic-http")
+    monkeypatch.setenv("TRANSPORT", "sse")
+    monkeypatch.setenv("TRADING212_HOST", "localhost")
+    monkeypatch.setenv("TRADING212_PORT", "8123")
+    monkeypatch.setattr(
+        TradingServer, "run", lambda self, **kwargs: calls.append(kwargs)
+    )
+    main()
+    assert calls[0]["host"] == "localhost"
+    assert calls[0]["port"] == 8123
+    protection = calls[0]["transport_security"]
+    assert protection.allowed_hosts == [
+        "127.0.0.1:8123",
+        "localhost:8123",
+        "[::1]:8123",
+    ]
+    assert "http://localhost:8123" in protection.allowed_origins
+
+
+def test_http_refuses_non_loopback_host(monkeypatch):
+    from trading212_mcp.server import main
+
+    monkeypatch.setenv("TRADING212_API_KEY", "synthetic-http")
+    monkeypatch.setenv("TRANSPORT", "streamable-http")
+    monkeypatch.setenv("TRADING212_HOST", "0.0.0.0")  # noqa: S104
+    with pytest.raises(SystemExit):
+        main()
+
+
 def test_http_rejects_untrusted_host_and_origin(settings):
     import httpx
-    from mcp.server.transport_security import TransportSecuritySettings
 
-    from trading212_mcp.server import create_server
+    from trading212_mcp.server import create_server, http_security
 
     app = create_server(settings).streamable_http_app(
-        host="127.0.0.1",
-        transport_security=TransportSecuritySettings(
-            enable_dns_rebinding_protection=True,
-            allowed_hosts=["127.0.0.1:8000", "localhost:8000"],
-            allowed_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
-        ),
+        host="127.0.0.1", transport_security=http_security(8000)
     )
 
     async def run():
