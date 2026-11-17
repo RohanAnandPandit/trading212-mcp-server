@@ -2,6 +2,7 @@
 
 ## 0.2.0 — Unreleased
 
+- Add the free Trading 212 Portfolio Analysis skill (read-only account analysis) with a reproducible Agensi packaging script.
 - Add an optional `next_page_path` argument to the history tools so the next page can be fetched by passing `nextPagePath` back unchanged.
 - Report Trading 212's short error `code` (for example an order rejection reason) in failed-request errors, never other upstream text.
 - Cap `search_instrument` results with a `limit` argument (default 100) and rank exact ticker, symbol or name matches first.
